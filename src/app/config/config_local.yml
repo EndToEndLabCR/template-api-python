@@ -1,5 +1,5 @@
 app:
-  name: "Orthopedic Spine API"
+  name: "App API"
   version: "1.0.0"
 
 postgres:
