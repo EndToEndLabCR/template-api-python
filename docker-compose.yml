@@ -1,0 +1,47 @@
+services:
+  app:
+    container_name: clinic_api_app
+    build:
+      context: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy  # Wait for postgres to be healthy
+    env_file:
+      - .env
+    environment:
+        APP_ENV: "container"
+    ports:
+      - "8080:8080"
+    command: ["./start.sh"]
+    networks:
+      - clinic_network
+
+  postgres:
+    image: postgres:15
+    container_name: clinic_api_app_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: clinicAdmin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: clinicdb
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clinicAdmin -d clinicdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - clinic_network
+
+volumes:
+  postgres_data:
+
+networks:
+  clinic_network:
+    driver: bridge
