@@ -1,6 +1,6 @@
 services:
   app:
-    container_name: clinic_api_app
+    container_name: template_api_app
     build:
       context: .
     restart: unless-stopped
@@ -15,16 +15,16 @@ services:
       - "8080:8080"
     command: ["./start.sh"]
     networks:
-      - clinic_network
+      - template_network
 
   postgres:
     image: postgres:15
-    container_name: clinic_api_app_db
+    container_name: template_api_app_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: clinicAdmin
+      POSTGRES_USER: templateAdmin
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: clinicdb
+      POSTGRES_DB: templatedb
     ports:
       - "5432:5432"
     env_file:
@@ -32,16 +32,16 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U clinicAdmin -d clinicdb"]
+      test: ["CMD-SHELL", "pg_isready -U templateAdmin -d templatedb"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - clinic_network
+      - template_network
 
 volumes:
   postgres_data:
 
 networks:
-  clinic_network:
+  template_network:
     driver: bridge
