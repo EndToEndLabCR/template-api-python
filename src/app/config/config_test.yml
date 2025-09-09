@@ -3,25 +3,12 @@ app:
   version: "1.0.0"
 
 postgres:
-  username: "clinicAdmin"
+  username: "templateAdmin"
   password: !ENV ${POSTGRES_PASSWORD}
   host: "localhost"
   port: 5432
-  dbname: "clinicdb"
+  dbname: "templatedb"
   echo: true  # SQLAlchemy echo logs
   poolSize: 10
   maxOverFlow: 10
   poolTimeout: 30
-
-email:
-  smtpServer: "smtp.gmail.com"
-  smtpPort: 465
-  address: "orthopedicspineinfo@gmail.com"
-  password: !ENV ${EMAIL_PASSWORD}
-
-
-authentication:
-  secretKey: !ENV ${SECRET_KEY}
-  algorithm: "HS256"
-  access_token_expire_minutes: 30
-  refresh_token_expire_days: 7

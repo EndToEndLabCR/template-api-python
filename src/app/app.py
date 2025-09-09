@@ -21,7 +21,6 @@ if ENV not in ("local", "container"):
 # --- CORS Origins from config ---
 origins = [
     "http://localhost",  # Add your React app's URL here
-    "http://clinic-alb-1726800379.us-east-1.elb.amazonaws.com"
 ]
 
 fastApiApp.add_middleware(
