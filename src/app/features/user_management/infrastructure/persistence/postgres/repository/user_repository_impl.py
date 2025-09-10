@@ -389,20 +389,18 @@ class UserRepositoryImpl(UserRepository):
     def _model_to_entity(model: UserModel) -> UserEntity:
         log.debug(f"Converting UserModel to UserEntity for ID: {model.id}")
         try:
-            # Convert SQLAlchemy model to dictionary
-            data = {
-                "id": UserId.from_string(str(model.id)),  # Convert UUID to UserId
-                "first_name": model.first_name,
-                "last_name": model.last_name,
-                "email": Email(str(model.email)),  # Convert string to Email value object
-                "role": model.role,
-                "user_status": model.user_status,
-                "password_hash": model.password_hash,
-                "created_at": model.created_at,
-                "updated_at": model.updated_at
-            }
-
-            return UserEntity.model_validate(data)
+            # Create UserEntity directly using the create factory method
+            return UserEntity.create(
+                user_id=UserId.from_string(str(model.id)),  # Convert UUID to UserId
+                first_name=model.first_name,
+                last_name=model.last_name,
+                email=Email(str(model.email)),  # Convert string to Email value object
+                role=model.role,
+                user_status=model.user_status,
+                password_hash=model.password_hash,
+                created_at=model.created_at,
+                updated_at=model.updated_at
+            )
         except Exception as e:
             log.error(f"Error converting UserModel to UserEntity for ID {model.id}: {e}")
             raise
@@ -417,7 +415,6 @@ class UserRepositoryImpl(UserRepository):
                 first_name=entity.first_name,
                 last_name=entity.last_name,
                 email=entity.email.value,  # Extract string from Email
-                phone_number=entity.phone_number.value if entity.phone_number else None,
                 role=entity.role,
                 user_status=entity.user_status,
                 password_hash=entity.password_hash,
