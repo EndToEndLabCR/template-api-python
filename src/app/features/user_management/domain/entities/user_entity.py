@@ -42,7 +42,6 @@ class UserEntity:
         created_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None,
     ) -> "UserEntity":
-        """Domain-safe factory method to create UserEntity from primitives and value objects"""
         return cls(
             id=user_id,
             first_name=first_name,
@@ -68,7 +67,6 @@ class UserEntity:
             first_name: Optional[str] = None,
             last_name: Optional[str] = None,
     ):
-        """Update user's personal information"""
         if first_name:
             self.first_name = first_name
         if last_name:
@@ -77,34 +75,6 @@ class UserEntity:
         self.updated_at = get_current_datetime()
 
     def change_status(self, new_status: UserStatus):
-        """Change user status"""
-        if self.user_status != new_status:
-            self.user_status = new_status
-            self.updated_at = get_current_datetime()
-
-    @property
-    def fullname(self) -> str:
-        return f"{self.first_name} {self.last_name}"
-
-    @property
-    def is_active(self) -> bool:
-        return self.user_status == UserStatus.ACTIVE
-
-    def update_personal_info(
-            self,
-            first_name: Optional[str] = None,
-            last_name: Optional[str] = None,
-    ):
-        """Update user's personal information"""
-        if first_name:
-            self.first_name = first_name
-        if last_name:
-            self.last_name = last_name
-
-        self.updated_at = get_current_datetime()
-
-    def change_status(self, new_status: UserStatus):
-        """Change user status"""
         if self.user_status != new_status:
             self.user_status = new_status
             self.updated_at = get_current_datetime()
