@@ -51,15 +51,71 @@ This project serves as a template for building scalable and maintainable API ser
 git clone https://github.com/your-username/your-repo.git
 cd your-repo
 
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
 ```
 
 [⬆️ Back to Top](#template-api-project)
+
+  
+## 📝 Configuration
+
+The [.env_example](.env.example) file under mds-upload-data-be shows which variables should be included in your local .env file. Ask a team member for the specific values to complete this step.
+
+- .env
+
+These files define runtime variables such as API endpoints, authentication settings, and environment-specific flags.
+
+
+### 🏃 Running the App
+
+#### Pip
+
+- Create the pip environment:
+
+  ```sh
+   python -m venv venv 
+  ```
+
+- Activate the pip environment:
+
+  ```sh
+   source venv/bin/activate
+  ```
+
+- In case you need to update pip:
+
+  ```sh
+    pip install --upgrade pip
+  ```
+
+- Install the project's core dependencies:
+
+  ```sh
+   pip install -r requirements.txt
+  ```
+
+- Deactivate virtual environment:
+
+  ```sh
+  deactivate
+  ```
+
+  The app will be available at http://localhost:5000 by default.
+
+#### 🐳 Using Containerized Setup
+
+
+- Delete any containers to avoid cache:
+
+  ```sh
+    -compose down
+  ```
+
+- Build the project:
+
+  ```sh
+    -compose up -d
+  ```
+
 
 ### 🏃 Running the App
 
