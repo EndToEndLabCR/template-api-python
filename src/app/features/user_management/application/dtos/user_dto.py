@@ -1,7 +1,6 @@
 from datetime import datetime
-import re
 
-from pydantic import BaseModel, Field, EmailStr, field_validator
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 
 
