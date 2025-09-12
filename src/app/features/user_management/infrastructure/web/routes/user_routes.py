@@ -12,7 +12,7 @@ from src.app.features.user_management.infrastructure.web.dependencies import get
 from src.shared.utils.log_util import log
 
 # Define the user management router
-router = APIRouter(prefix="/v1/user", tags=["Users"])
+router = APIRouter()
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
