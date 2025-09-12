@@ -11,8 +11,11 @@ This project serves as a template for building scalable and maintainable API ser
   - [🚀 Getting Started](#-getting-started)
     - [⚙️ Prerequisites](#️-prerequisites)
     - [💾 Installation](#-installation)
+    - [📝 Configuration](#-configuration)
+    - [Pip](#pip)
     - [🏃 Running the App](#-running-the-app)
-  - [📝 Configuration](#-configuration)
+      - [🐳 Using Docker](#-using-docker)
+      - [Using Pycharm](#using-pycharm)
   - [🤝 Contributing](#-contributing)
 
 ## ✨ Features
@@ -48,31 +51,30 @@ This project serves as a template for building scalable and maintainable API ser
 
 ```sh
 # Clone the repository
-git clone https://github.com/your-username/your-repo.git
+git clone https://github.com/your-username/template-api-python.git
 cd your-repo
 
 ```
 
 [⬆️ Back to Top](#template-api-project)
 
-  
-## 📝 Configuration
+### 📝 Configuration
 
-The [.env_example](.env.example) file under mds-upload-data-be shows which variables should be included in your local .env file. Ask a team member for the specific values to complete this step.
+The [.env.example](.env.example) file under root folder shows which variables should be included in your local .env file.
+Ask a team member for the specific values to complete this step.
 
 - .env
 
 These files define runtime variables such as API endpoints, authentication settings, and environment-specific flags.
 
+[⬆️ Back to Top](#template-api-project)
 
-### 🏃 Running the App
-
-#### Pip
+### Pip
 
 - Create the pip environment:
 
   ```sh
-   python -m venv venv 
+   python -m venv venv
   ```
 
 - Activate the pip environment:
@@ -99,41 +101,29 @@ These files define runtime variables such as API endpoints, authentication setti
   deactivate
   ```
 
-  The app will be available at http://localhost:5000 by default.
+### 🏃 Running the App
 
-#### 🐳 Using Containerized Setup
-
+#### 🐳 Using Docker
 
 - Delete any containers to avoid cache:
 
   ```sh
-    -compose down
+    docker-compose down --rmi all --volumes --remove-orphans
   ```
 
 - Build the project:
 
   ```sh
-    -compose up -d
+    docker-compose up --build -d
   ```
 
+#### Using Pycharm
 
-### 🏃 Running the App
-
-```sh
-# Run the application
-python main.py
-```
-
+**python interpreter:** your-repo/venv/bin/python
+**working directory:** your-repo  
+**module:** uvicorn  
+**scrip parameters:** src.main:app --reload
 Access the app at `http://localhost:8000`.
-
-[⬆️ Back to Top](#template-api-project)
-
-## 📝 Configuration
-
-- Environment variables are managed via `.env` files. Below are the key variables:
-  - `API_URL` - The endpoint for the backend API
-  - `PORT` - The port number to run the app
-  - `DATABASE_URL` - Connection string for the database
 
 [⬆️ Back to Top](#template-api-project)
 
