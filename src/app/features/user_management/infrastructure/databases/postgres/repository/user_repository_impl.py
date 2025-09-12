@@ -9,7 +9,7 @@ from src.app.features.user_management.domain.entities.user_enums import UserStat
 from src.app.features.user_management.domain.repositories.user_repository import UserRepository
 from src.app.features.user_management.domain.value_objects.email import Email
 from src.app.features.user_management.domain.value_objects.user_id import UserId
-from src.app.features.user_management.infrastructure.persistence.postgres.models.user_model import UserModel
+from src.app.features.user_management.infrastructure.databases.postgres.models.user_model import UserModel
 from src.shared.utils.log_util import log
 from src.shared.utils.retry_decorator import retry_read_operation, retry_write_operation, retry_critical_operation
 
