@@ -29,7 +29,7 @@ class GetUserByIdUseCase:
                 raise UserDoesNotExistException(f"User with ID {user_id} does not exist.")
 
             log.info(f"User found successfully: {user_id}")
-            log.debug(f"User details - Email: {existing_user.email.value}, Role: {existing_user.role}")
+            log.debug(f"User details - Email: {existing_user.email.value}, Role: {existing_user.user_role}")
 
             # Create response DTO
             response_dto = map_entity_to_dto_user(existing_user)

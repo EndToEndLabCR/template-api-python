@@ -13,7 +13,7 @@ class UserEntity:
     first_name: str
     last_name: str
     email: Email
-    role: UserRole
+    user_role: UserRole
     id: UserId = None
     user_status: UserStatus = UserStatus.ACTIVE
     password_hash: Optional[str] = None
@@ -35,7 +35,7 @@ class UserEntity:
         first_name: str,
         last_name: str,
         email: Email,
-        role: UserRole,
+        user_role: UserRole,
         user_id: Optional[UserId] = None,
         user_status: UserStatus = UserStatus.ACTIVE,
         password_hash: Optional[str] = None,
@@ -47,7 +47,7 @@ class UserEntity:
             first_name=first_name,
             last_name=last_name,
             email=email,
-            role=role,
+            user_role=user_role,
             user_status=user_status,
             password_hash=password_hash,
             created_at=created_at,

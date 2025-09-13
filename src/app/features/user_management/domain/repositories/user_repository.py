@@ -22,12 +22,12 @@ class UserRepository(BaseRepository[UserEntity, UserId]):
         pass
 
     @abstractmethod
-    async def find_by_role(self, role: UserRole, limit: Optional[int] = None, offset: Optional[int] = None) -> \
+    async def find_by_role(self, user_role: UserRole, limit: Optional[int] = None, offset: Optional[int] = None) -> \
             AsyncIterator[UserEntity]:
         """
         Find users by their role.
 
-        :param role: The user role to filter by.
+        :param user_role: The user role to filter by.
         :param limit: Optional limit for pagination.
         :param offset: Optional offset for pagination.
         :return: An asynchronous iterator of user entities.
