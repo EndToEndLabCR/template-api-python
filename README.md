@@ -116,6 +116,7 @@ These files define runtime variables such as API endpoints, authentication setti
   ```sh
     docker-compose up --build -d
   ```
+[Docker local run example](docs/running-app/docker-run.png)  
 
 #### Using Pycharm
 
@@ -123,10 +124,47 @@ These files define runtime variables such as API endpoints, authentication setti
 **working directory:** your-repo  
 **module:** uvicorn  
 **scrip parameters:** src.main:app --reload
+
+[Pycharm local run settings example](docs/running-app/pycharm-run-setup.png)  
 Access the app at `http://localhost:8000`.
 
 [⬆️ Back to Top](#template-api-project)
 
+## 🗄️ Database Management
+
+### Initial Setup
+
+```bash
+# Initialize Alembic (if not already done)
+alembic init alembic
+
+# Configure Alembic to use your database URL
+# Add this line to alembic/env.py (line 13):
+config.set_main_option("sqlalchemy.url", get_postgres_database_url())
+```
+
+### Creating Migrations
+
+```bash
+# Create a new migration after model changes
+alembic revision --autogenerate -m "Description of changes"
+```
+
+### Running Migrations
+
+```bash
+# Apply all pending migrations
+alembic upgrade head
+
+# Upgrade to specific revision
+alembic upgrade <revision_id>
+
+# Downgrade one version
+alembic downgrade -1
+
+# View migration history
+alembic history
+```
 ## 🤝 Contributing
 
 Contributions are welcome! Please follow these steps:
