@@ -15,7 +15,7 @@ def map_dto_to_entity_user(user_dto: BaseModel) -> UserEntity:
         first_name=user_dto.first_name,
         last_name=user_dto.last_name,
         email=Email(user_dto.email),
-        role=UserRole(user_dto.role),
+        user_role=UserRole(user_dto.user_role),
         password_hash=user_dto.password_hash,
     )
 
@@ -28,7 +28,7 @@ def map_entity_to_dto_user(user_entity: Union[BaseModel, UserEntity]) -> UserRes
         id=str(user_entity.id.value),
         fullname=user_entity.fullname,
         email=user_entity.email.value,
-        role=user_entity.role.value,
+        user_role=user_entity.user_role.value,
         user_status=user_entity.user_status.value,
         created_at=user_entity.created_at,
         updated_at=user_entity.updated_at,

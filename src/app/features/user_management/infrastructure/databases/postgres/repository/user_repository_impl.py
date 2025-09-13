@@ -9,7 +9,7 @@ from src.app.features.user_management.domain.entities.user_enums import UserStat
 from src.app.features.user_management.domain.repositories.user_repository import UserRepository
 from src.app.features.user_management.domain.value_objects.email import Email
 from src.app.features.user_management.domain.value_objects.user_id import UserId
-from src.app.features.user_management.infrastructure.persistence.postgres.models.user_model import UserModel
+from src.app.features.user_management.infrastructure.databases.postgres.models.user_model import UserModel
 from src.shared.utils.log_util import log
 from src.shared.utils.retry_decorator import retry_read_operation, retry_write_operation, retry_critical_operation
 
@@ -61,22 +61,22 @@ class UserRepositoryImpl(UserRepository):
             raise
 
     @retry_read_operation()
-    async def find_by_role(self, role: UserRole, limit: Optional[int] = None, offset: Optional[int] = None) -> \
+    async def find_by_role(self, user_role: UserRole, limit: Optional[int] = None, offset: Optional[int] = None) -> \
             AsyncIterator[UserEntity]:
         """
         Find users by their role.
 
         Args:
-            role (UserRole): The role to filter by.
+            user_role (UserRole): The role to filter by.
             limit (Optional[int]): The maximum number of results to return.
             offset (Optional[int]): The offset for pagination.
 
         Returns:
             AsyncIterator[UserEntity]: An iterator of user entities matching the role.
         """
-        log.info(f"Searching for users by role: {role}, limit: {limit}, offset: {offset}")
+        log.info(f"Searching for users by role: {user_role}, limit: {limit}, offset: {offset}")
         try:
-            query = select(UserModel).where(UserModel.role == role)
+            query = select(UserModel).where(UserModel.user_role == user_role)
             if limit:
                 query = query.limit(limit)
             if offset:
@@ -88,16 +88,16 @@ class UserRepositoryImpl(UserRepository):
             async for user_model in result:
                 resolved_user_model = await user_model
                 user_count += 1
-                log.debug(f"Retrieved user {user_count} with role {role}: {resolved_user_model.id}")
+                log.debug(f"Retrieved user {user_count} with role {user_role}: {resolved_user_model.id}")
                 yield self._model_to_entity(resolved_user_model)
 
-            log.info(f"Successfully retrieved {user_count} users with role: {role}")
+            log.info(f"Successfully retrieved {user_count} users with role: {user_role}")
 
         except SQLAlchemyError as e:
-            log.error(f"Database error while searching for users by role {role}: {e}")
+            log.error(f"Database error while searching for users by role {user_role}: {e}")
             raise Exception("Database error occurred while searching for users by role")
         except Exception as e:
-            log.error(f"Unexpected error while searching for users by role {role}: {e}")
+            log.error(f"Unexpected error while searching for users by role {user_role}: {e}")
             raise
 
     @retry_read_operation()
@@ -395,7 +395,7 @@ class UserRepositoryImpl(UserRepository):
                 first_name=model.first_name,
                 last_name=model.last_name,
                 email=Email(str(model.email)),  # Convert string to Email value object
-                role=model.role,
+                user_role=model.user_role,
                 user_status=model.user_status,
                 password_hash=model.password_hash,
                 created_at=model.created_at,
@@ -415,7 +415,7 @@ class UserRepositoryImpl(UserRepository):
                 first_name=entity.first_name,
                 last_name=entity.last_name,
                 email=entity.email.value,  # Extract string from Email
-                role=entity.role,
+                user_role=entity.user_role,
                 user_status=entity.user_status,
                 password_hash=entity.password_hash,
                 created_at=entity.created_at,

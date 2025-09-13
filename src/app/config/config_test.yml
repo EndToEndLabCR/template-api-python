@@ -9,6 +9,6 @@ postgres:
   port: 5432
   dbname: "templatedb"
   echo: true  # SQLAlchemy echo logs
-  poolSize: 10
-  maxOverFlow: 10
-  poolTimeout: 30
+  pool_size: 10
+  max_over_flow: 10
+  pool_timeout: 30

@@ -19,7 +19,7 @@ venv/
 
 # Docker artifacts
 Dockerfile
-docker-compose.yml
+compose.yml
 
 
 # Editor & OS files

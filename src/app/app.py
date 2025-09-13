@@ -37,4 +37,4 @@ def get_health_check():
     return "Ok"
 
 
-fastApiApp.include_router(user_router)
+fastApiApp.include_router(user_router, prefix="/v1/user", tags=["Users"])

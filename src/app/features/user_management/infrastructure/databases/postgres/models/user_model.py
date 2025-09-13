@@ -20,7 +20,7 @@ class UserModel(BaseModel):
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     email = Column(String(255), unique=True, nullable=False)
-    role = Column(Enum(UserRole), nullable=False)
+    user_role = Column(Enum(UserRole), nullable=False)
     user_status = Column(Enum(UserStatus), default=UserStatus.ACTIVE, nullable=False)
     password_hash = Column(Text, nullable=True)
 
@@ -35,5 +35,5 @@ class UserModel(BaseModel):
 
     def __repr__(self):
         return (
-            f"<UserModel(id={self.id}, email={self.email}, role={self.role}, status={self.user_status})>"
+            f"<UserModel(id={self.id}, email={self.email}, role={self.user_role}, status={self.user_status})>"
         )

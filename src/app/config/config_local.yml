@@ -9,22 +9,9 @@ postgres:
   port: 5432
   dbname: "templatedb"
   echo: true  # SQLAlchemy echo logs
-  poolSize: 10
-  maxOverFlow: 10
-  poolTimeout: 30
+  pool_size: 10
+  max_over_flow: 10
+  pool_timeout: 30
 
 
 
-retry:
-  read_operations:
-    max_tries: 3
-    backoff_factor: 1.5
-    exceptions: ["SQLAlchemyError", "OperationalError", "TimeoutError"]
-  write_operations:
-    max_tries: 5
-    backoff_factor: 2.0
-    exceptions: ["SQLAlchemyError", "OperationalError", "IntegrityError"]
-  critical_operations:
-    max_tries: 7
-    backoff_factor: 2.5
-    exceptions: ["Exception"]

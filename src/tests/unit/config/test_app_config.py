@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import patch
 
-from src.app.config import AppConfiguration, DEFAULT_ENVIRONMENT
-from src.app.config import Paths
+from src.app.config.app_config import DEFAULT_ENVIRONMENT, AppConfig
+from src.app.config.paths import Paths
 
 
 @pytest.fixture
@@ -10,9 +10,9 @@ def reset_singleton():
     """
     Fixture to reset the Singleton instance of AppConfiguration before each test.
     """
-    AppConfiguration._instance = None
+    AppConfig._instance = None
     yield
-    AppConfiguration._instance = None
+    AppConfig._instance = None
 
 
 @patch("app.configuration.app_config.load_dotenv")
@@ -26,7 +26,7 @@ def test_load_environment_variables(mock_get_env, mock_load_dotenv, reset_single
         "APP_ENV": "test"
     }.get(key, default)
 
-    config = AppConfiguration.instance()
+    config = AppConfig.instance()
     assert config.env == "test"
     mock_load_dotenv.assert_called_once_with(Paths.ENV_FILE_PATH)
 
@@ -40,7 +40,7 @@ def test_fallback_to_default_environment(mock_get_env, mock_parse_config, reset_
     mock_get_env.return_value = None  # Simulate APP_ENV being None
     mock_parse_config.return_value = {}
 
-    config = AppConfiguration.instance()
+    config = AppConfig.instance()
     assert config.env == DEFAULT_ENVIRONMENT
 
 
@@ -63,7 +63,7 @@ def test_load_config_test_yaml(mock_get_env, mock_parse_config, reset_singleton)
     }
 
     # Initialize the AppConfiguration instance
-    config = AppConfiguration.instance()
+    config = AppConfig.instance()
 
     # Ensure the environment is set to 'test'
     assert config.env == "test"
@@ -87,12 +87,12 @@ def test_reset_singleton_instance(mock_get_env, mock_load_dotenv):
     mock_get_env.return_value = "test"
 
     # First instance
-    config1 = AppConfiguration.instance()
+    config1 = AppConfig.instance()
     assert config1.env == "test"
 
     # Reset the Singleton instance
-    AppConfiguration._instance = None
+    AppConfig._instance = None
 
     # Create a new instance
-    config2 = AppConfiguration.instance()
+    config2 = AppConfig.instance()
     assert id(config1) != id(config2)  # Ensure the instances are different

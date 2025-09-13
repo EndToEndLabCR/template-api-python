@@ -1,7 +1,6 @@
 from datetime import datetime
-import re
 
-from pydantic import BaseModel, Field, EmailStr, field_validator
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 
 
@@ -10,7 +9,7 @@ class CreateUserRequest(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
     email: EmailStr
-    role: str
+    user_role: str
     password_hash: Optional[str] = None
 
     class Config:
@@ -30,7 +29,7 @@ class UserResponse(BaseModel):
     id: str
     fullname: str
     email: EmailStr
-    role: str
+    user_role: str
     user_status: str
     created_at: datetime
     updated_at: datetime
