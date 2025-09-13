@@ -83,7 +83,7 @@ async def get_user_by_id(user_id: UUID, user_service: UserService = Depends(get_
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
-@router.get("/", response_model=List[UserResponse])
+@router.get("/all/", response_model=List[UserResponse])
 async def get_all_users(page: int = Query(1, ge=1), page_size: int = Query(10, ge=1, le=100),
                         user_service: UserService = Depends(get_user_service)):
     """
