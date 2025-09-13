@@ -2,6 +2,11 @@ app:
   name: "App API"
   version: "1.0.0"
 
+logger:
+    level: "DEBUG"
+    format: "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
+    date_format: "%Y-%m-%d %H:%M:%S"
+
 postgres:
   username: "templateAdmin"
   password: !ENV ${POSTGRES_PASSWORD}
@@ -9,9 +14,9 @@ postgres:
   port: 5432
   dbname: "templatedb"
   echo: true  # SQLAlchemy echo logs
-  poolSize: 10
-  maxOverFlow: 10
-  poolTimeout: 30
+  pool_size: 10
+  max_over_flow: 10
+  pool_timeout: 30
 
 
 

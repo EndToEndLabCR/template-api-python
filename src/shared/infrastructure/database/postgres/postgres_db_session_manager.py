@@ -4,8 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, AsyncEngin
 from contextlib import asynccontextmanager
 from sqlalchemy.exc import TimeoutError, OperationalError
 from src.shared.utils.config_util import get_config_value
-from src.shared.utils.log_util import log
-
+import logging as log
 
 class PostgresDbSessionManager:
     """
@@ -24,9 +23,9 @@ class PostgresDbSessionManager:
 
         # Optional configuration with defaults
         self.echo: bool = get_config_value(postgres_config, "echo", default=False)
-        self.pool_size: int = int(get_config_value(postgres_config, "poolSize", default=10))
-        self.max_over_flow: int = int(get_config_value(postgres_config, "maxOverFlow", default=5))
-        self.pool_timeout: int = int(get_config_value(postgres_config, "poolTimeout", default=30))
+        self.pool_size: int = int(get_config_value(postgres_config, "pool_size", default=10))
+        self.max_over_flow: int = int(get_config_value(postgres_config, "max_over_flow", default=5))
+        self.pool_timeout: int = int(get_config_value(postgres_config, "pool_timeout", default=30))
 
         self.db_url = (
             f"postgresql+asyncpg://{self.db_username}:"
