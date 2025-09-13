@@ -2,11 +2,6 @@ app:
   name: "App API"
   version: "1.0.0"
 
-logger:
-    level: "DEBUG"
-    format: "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
-    date_format: "%Y-%m-%d %H:%M:%S"
-
 postgres:
   username: "templateAdmin"
   password: !ENV ${POSTGRES_PASSWORD}
@@ -20,16 +15,3 @@ postgres:
 
 
 
-retry:
-  read_operations:
-    max_tries: 3
-    backoff_factor: 1.5
-    exceptions: ["SQLAlchemyError", "OperationalError", "TimeoutError"]
-  write_operations:
-    max_tries: 5
-    backoff_factor: 2.0
-    exceptions: ["SQLAlchemyError", "OperationalError", "IntegrityError"]
-  critical_operations:
-    max_tries: 7
-    backoff_factor: 2.5
-    exceptions: ["Exception"]
