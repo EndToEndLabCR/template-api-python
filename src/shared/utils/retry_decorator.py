@@ -2,11 +2,7 @@ import backoff
 from typing import Tuple, Type
 
 from src.shared.global_variables import MAX_ERROR_RETRIES
-from src.shared.utils.log_util import log
-from src.app.config.app_config import AppConfig
-
-# Get configuration values with defaults
-config = AppConfig.instance()
+import logging as log
 
 
 def retry_on_exception(max_tries=MAX_ERROR_RETRIES):
@@ -43,9 +39,9 @@ def retry_read_operation(max_tries: int = None, backoff_factor: float = None,
     """
 
     if max_tries is None:
-        max_tries = config.get_config('retry.read_operations.max_tries', 3)
+        max_tries = 3
     if backoff_factor is None:
-        backoff_factor = config.get_config('retry.read_operations.backoff_factor', 1.5)
+        backoff_factor = 1.5
     if exceptions is None:
         from sqlalchemy.exc import SQLAlchemyError, OperationalError
         exceptions = (SQLAlchemyError, OperationalError, TimeoutError)
@@ -75,9 +71,9 @@ def retry_write_operation(max_tries: int = None, backoff_factor: float = None,
     """
 
     if max_tries is None:
-        max_tries = config.get_config('retry.write_operations.max_tries', 5)
+        max_tries = 5
     if backoff_factor is None:
-        backoff_factor = config.get_config('retry.write_operations.backoff_factor', 2.0)
+        backoff_factor =2.0
     if exceptions is None:
         from sqlalchemy.exc import SQLAlchemyError, OperationalError, IntegrityError
         exceptions = (SQLAlchemyError, OperationalError, IntegrityError)
@@ -107,9 +103,9 @@ def retry_critical_operation(max_tries: int = None, backoff_factor: float = None
     """
 
     if max_tries is None:
-        max_tries = config.get_config('retry.critical_operations.max_tries', 7)
+        max_tries = 7
     if backoff_factor is None:
-        backoff_factor = config.get_config('retry.critical_operations.backoff_factor', 2.5)
+        backoff_factor = 2.5
     if exceptions is None:
         exceptions = (Exception,)
 
