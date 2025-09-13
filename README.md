@@ -14,8 +14,12 @@ This project serves as a template for building scalable and maintainable API ser
     - [📝 Configuration](#-configuration)
     - [Pip](#pip)
     - [🏃 Running the App](#-running-the-app)
-      - [🐳 Using Docker](#-using-docker)
-      - [Using Pycharm](#using-pycharm)
+      - [🐳 Running with Docker](#-running-with-docker)
+      - [🖥️ Running with PyCharm](#️-running-with-pycharm)
+  - [🗄️ Database Management](#️-database-management)
+    - [Initial Setup](#initial-setup)
+    - [Creating Migrations](#creating-migrations)
+    - [Running Migrations](#running-migrations)
   - [🤝 Contributing](#-contributing)
 
 ## ✨ Features
@@ -103,32 +107,68 @@ These files define runtime variables such as API endpoints, authentication setti
 
 ### 🏃 Running the App
 
-#### 🐳 Using Docker
+#### 🐳 Running with Docker
 
-- Delete any containers to avoid cache:
+Ensure Docker and Docker Compose are installed on your system.
 
-  ```sh
-    docker-compose down --rmi all --volumes --remove-orphans
-  ```
+1. **Clean up existing containers and caches:**
 
-- Build the project:
+   To avoid issues caused by cached images, volumes, or orphaned containers, run the following command:
 
-  ```sh
-    docker-compose up --build -d
-  ```
-[Docker local run example](docs/running-app/docker-run.png)  
+   ```sh
+   docker-compose down --rmi all --volumes --remove-orphans
+   ```
 
-#### Using Pycharm
+2. **Build and start the application:**
 
-**python interpreter:** your-repo/venv/bin/python
-**working directory:** your-repo  
-**module:** uvicorn  
-**scrip parameters:** src.main:app --reload
+   Build the Docker images and run the containers in detached mode by executing:
 
-[Pycharm local run settings example](docs/running-app/pycharm-run-setup.png)  
-Access the app at `http://localhost:8000`.
+   ```sh
+   docker-compose up --build -d
+   ```
 
-[⬆️ Back to Top](#template-api-project)
+3. **Access the app:**
+
+   Once the containers are up, you can access the app's Swagger UI at:  
+   `http://localhost:8080/docs`
+
+   [Docker local run example](docs/running-app/docker-run.png)
+
+---
+
+#### 🖥️ Running with PyCharm
+
+If you prefer running the app directly from the PyCharm IDE, follow these steps:
+
+1. **Set up the Python interpreter:**
+
+   - Navigate to PyCharm's settings (`File -> Settings -> Project -> Python Interpreter`).
+   - Select the Python interpreter located at:  
+     `your-repo/venv/bin/python`
+
+2. **Configure the working directory:**
+
+   - In your run configuration, set the **working directory** to:  
+     `your-repo`
+
+3. **Set up the module and script parameters:**
+
+   - **Module:** `uvicorn`
+   - **Script parameters:**  
+     `src.main:app --reload`
+
+4. **Run the application:**
+
+   - Save the run configuration and start the app.
+
+5. **Access the app:**
+
+   The app will be available at:  
+   `http://localhost:8000/docs`
+
+   [PyCharm local run settings example](docs/running-app/pycharm-run-setup.png)
+
+---
 
 ## 🗄️ Database Management
 
@@ -165,6 +205,7 @@ alembic downgrade -1
 # View migration history
 alembic history
 ```
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please follow these steps:
