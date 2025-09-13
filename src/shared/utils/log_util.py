@@ -4,7 +4,7 @@ import logging
 # Log Format and Timestamp Format
 LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG").upper()
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
 
 def get_logger(name: str = __name__) -> logging.Logger:
