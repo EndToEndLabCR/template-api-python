@@ -72,7 +72,7 @@ def retry_write_operation(max_tries: int = None, backoff_factor: float = None,
     if max_tries is None:
         max_tries = 5
     if backoff_factor is None:
-        backoff_factor =2.0
+        backoff_factor = 2.0
     if exceptions is None:
         from sqlalchemy.exc import SQLAlchemyError, OperationalError, IntegrityError
         exceptions = (SQLAlchemyError, OperationalError, IntegrityError)
