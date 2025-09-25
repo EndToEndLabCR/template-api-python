@@ -13,7 +13,7 @@ services:
         APP_ENV: "docker"
     ports:
       - "8080:8080"
-    command: ["./start.sh"]
+    command: ["./start-api.sh"]
     networks:
       - template_network
 

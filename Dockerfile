@@ -23,8 +23,8 @@ RUN addgroup --system appuser && adduser --system --ingroup appuser -u 999 appus
 RUN chown -R appuser:appuser /app
 
 # Set permissions and make start script executable
-COPY /start.sh /start.sh
-RUN chmod a+x /start.sh
+COPY /scripts/start-api.sh /start-api.sh
+RUN chmod a+x /start-api.sh
 
 # Switch to the non-root user
 USER 999
