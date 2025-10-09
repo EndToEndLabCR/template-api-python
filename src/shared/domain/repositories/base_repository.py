@@ -1,60 +1,68 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, List, Optional
 
+from src.shared.domain.entities.base_entity import BaseEntity
+from src.shared.domain.value_objects.entity_id import EntityId
+
 T = TypeVar('T')
 ID = TypeVar('ID')
 
 
 class BaseRepository(Generic[T, ID], ABC):
-    """Base repositories interface"""
+    """
+    Abstract base class for repositories managing entities.
+
+    This interface defines the contract for repository implementations, ensuring
+    consistent behavior for CRUD operations across different entity types.
+    """
 
     @abstractmethod
-    async def save(self, entity: T) -> T:
+    async def save(self, entity: BaseEntity) -> BaseEntity:
         """
-        Save an entity to the repositories.
+        Save a new entity in the repository.
 
         Args:
-            entity (T): The entity to save.
+            entity (BaseEntity): The entity instance to save.
 
         Returns:
-            T: The saved entity.
+            BaseEntity: The saved entity instance.
         """
         pass
 
     @abstractmethod
-    async def find_by_id(self, entity_id: ID) -> Optional[T]:
+    async def find_by_id(self, entity_id: EntityId) -> Optional[BaseEntity]:
         """
-        Find an entity by its unique identifier.
+        Retrieve an entity by its unique identifier.
 
         Args:
-            entity_id (ID): The unique identifier of the entity.
+            entity_id (EntityId): The unique identifier of the entity.
 
         Returns:
-            Optional[T]: The entity if found, None otherwise.
+            Optional[BaseEntity]: The entity if found, otherwise None.
         """
         pass
 
     @abstractmethod
-    async def find_all(self, limit: Optional[int] = None, offset: Optional[int] = None) -> List[T]:
+    async def find_all(self, limit: Optional[int] = None, offset: Optional[int] = None) -> List[BaseEntity]:
         """
-        Find all entities with optional pagination.
+        Retrieve all entities, with optional pagination.
 
         Args:
-            limit (Optional[int], optional): Maximum number of entities to return. Defaults to None.
-            offset (Optional[int], optional): Number of entities to skip. Defaults to None.
+            limit (Optional[int]): Maximum number of entities to return.
+            offset (Optional[int]): Number of entities to skip before starting to collect the result set.
 
         Returns:
-            List[T]: A list of entities.
+            List[BaseEntity]: A list of entities.
         """
         pass
 
     @abstractmethod
-    async def exists(self, entity_id: ID) -> bool:
+    async def exists(self, entity_id: EntityId) -> bool:
         """
         Check if an entity exists by its unique identifier.
 
         Args:
-            entity_id (ID): The unique identifier of the entity.
+            entity_id (EntityId): The unique identifier of the entity.
 
         Returns:
             bool: True if the entity exists, False otherwise.
@@ -62,25 +70,25 @@ class BaseRepository(Generic[T, ID], ABC):
         pass
 
     @abstractmethod
-    async def update(self, entity: T) -> Optional[T]:
+    async def update(self, entity: BaseEntity) -> Optional[BaseEntity]:
         """
-        Update an existing entity in the repositories.
+        Update an existing entity in the repository.
 
         Args:
-            entity (T): The entity to update.
+            entity (BaseEntity): The entity instance to update.
 
         Returns:
-            Optional[T]: The updated entity if successful, None if the entity was not found.
+            Optional[BaseEntity]: The updated entity if successful, otherwise None.
         """
         pass
 
     @abstractmethod
-    async def delete(self, entity_id: ID) -> bool:
+    async def delete(self, entity_id: EntityId) -> bool:
         """
-        Delete an entity by its unique identifier.
+        Remove an entity by its unique identifier.
 
         Args:
-            entity_id (ID): The unique identifier of the entity to delete.
+            entity_id (EntityId): The unique identifier of the entity to delete.
 
         Returns:
             bool: True if the entity was deleted, False if not found.
