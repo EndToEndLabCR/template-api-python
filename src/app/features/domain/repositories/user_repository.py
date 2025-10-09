@@ -32,11 +32,23 @@ class UserRepository(BaseRepository[UserEntity, EntityId]):
         """
         Find a user by their email address.
 
-        :param email: The email to search for.
-        :return: The user entity or None if not found.
+        Args:
+            email (Email): The email address to search for.
+
+        Returns:
+            Optional[UserEntity]: The user entity if found, otherwise None.
         """
         pass
 
     @abstractmethod
-    async def find_by_name(self, record) :
+    async def find_by_name(self, record: str) -> Optional[UserEntity]:
+        """
+        Find a user by their name.
+
+        Args:
+            record (str): The name of the user to search for.
+
+        Returns:
+            Optional[UserEntity]: The user entity if found, otherwise None.
+        """
         pass
