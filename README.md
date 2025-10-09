@@ -87,6 +87,12 @@ These files define runtime variables such as API endpoints, authentication setti
    source venv/bin/activate
   ```
 
+- Optional: Activate the pip environment (Windows)
+
+   ```sh
+    venv\Scripts\activate
+  ```
+
 - In case you need to update pip:
 
   ```sh
