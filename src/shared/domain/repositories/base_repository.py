@@ -66,7 +66,7 @@ class BaseRepository(Generic[T, ID], ABC):
     @abstractmethod
     async def update(self, entity: T) -> Optional[T]:
         """
-        Update an existing entity in the repositories.
+        Update an existing entity in the repository.
 
         Args:
             entity (T): The entity to update.
