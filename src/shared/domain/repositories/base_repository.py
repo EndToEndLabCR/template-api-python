@@ -6,7 +6,9 @@ ID = TypeVar('ID')
 
 
 class BaseRepository(Generic[T, ID], ABC):
-    """Base repositories interface"""
+    """
+    A generic base repository interface for managing entities.
+    """
 
     @abstractmethod
     async def save(self, entity: T) -> T:
