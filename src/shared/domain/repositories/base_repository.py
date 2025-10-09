@@ -13,7 +13,7 @@ class BaseRepository(Generic[T, ID], ABC):
     @abstractmethod
     async def save(self, entity: T) -> T:
         """
-        Save an entity to the repositories.
+        Save an entity to the repository.
 
         Args:
             entity (T): The entity to save.
