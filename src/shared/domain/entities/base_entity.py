@@ -1,5 +1,4 @@
 from datetime import datetime
-from uuid import UUID
 from typing import Optional
 
 from src.shared.domain.value_objects.entity_id import EntityId
@@ -9,7 +8,7 @@ from src.shared.utils.date_util import get_current_datetime
 class BaseEntity:
 
     def __init__(self,
-                 id: UUID = None,
+                 id: EntityId = None,
                  created_at: Optional[datetime] = None,
                  updated_at: Optional[datetime] = None
                  ):
