@@ -1,8 +1,8 @@
 def get_config_value(config: dict, key: str, default=None, expected_type=None):
     """
-    Helper function to fetch a configuration value with validation and casting.
-    :param config: The configuration dictionary.
-    :param key: The key to fetch from the configuration.
+    Helper function to fetch a configuration dictionary.
+    :param key: The value with validation and casting.
+    :param config: Tey to fetch from the configuration.
     :param default: The default value to return if the key is missing.
     :param expected_type: The expected type for validation and casting.
     :return: The configuration value.
