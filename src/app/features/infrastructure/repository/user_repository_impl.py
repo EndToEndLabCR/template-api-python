@@ -1,5 +1,7 @@
 from typing import Optional, List
 
+from sqlalchemy import select
+
 from src.app.features.domain.entities.user_entity import UserEntity
 from src.app.features.domain.repositories.user_repository import UserRepository
 from src.app.features.domain.value_objects.email import Email
@@ -9,9 +11,10 @@ from src.shared.domain.repositories.base_repository import ID, T
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.shared.utils.log_util import log
+
 
 class UserRepositoryImpl(UserRepository):
-
 
     def __init__(self, db_session: AsyncSession):
         """
@@ -23,15 +26,21 @@ class UserRepositoryImpl(UserRepository):
         self.db_session = db_session
 
     async def find_by_id(self, entity_id: ID) -> Optional[UserEntity]:
-
         user_model: Optional[UserModel] = await self.db_session.get(UserModel, entity_id)
 
         return map_model_to_entity(user_model)
 
-
-
     async def find_by_email(self, email: Email) -> Optional[UserEntity]:
-        pass
+        result = await self.db_session.execute(select(UserModel.email == email.value))
+
+        user_model = result.scalar_one_or_none()
+
+        if user_model is None:
+            log.info(f"User with email {email.value} not found.")
+            return None
+
+        log.info(f"User with email {email.value} found.")
+        return map_model_to_entity(user_model)
 
     async def find_by_name(self, record: str) -> Optional[UserEntity]:
         pass
