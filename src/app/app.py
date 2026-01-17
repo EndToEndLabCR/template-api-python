@@ -4,6 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.app.config.app_config import AppConfig
 
+from src.app.features.presentation.web.routes.user_routes import router as user_router
+
 ENV = os.getenv("APP_ENV", "local")
 
 config = AppConfig.instance()
@@ -38,5 +40,8 @@ def read_root():
 @fastApiApp.get("/health")
 def get_health_check():
     return "Ok"
+
+# TODO validate best practices for endpoint naming conventions
+fastApiApp.include_router(user_router, prefix="/v1/user", tags=["Users"])
 
 
