@@ -45,6 +45,7 @@ class AppConfig:
             with cls._lock:
                 if cls._instance is None:  # Double-checked locking
                     cls._instance = cls()
+
         return cls._instance
 
     def load_app_configuration(self):
