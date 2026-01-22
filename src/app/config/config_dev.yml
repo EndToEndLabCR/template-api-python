@@ -3,9 +3,9 @@ app:
   version: "1.0.0"
 
 postgres:
-  username: "templateAdmin"
+  username: "admin"
   password: !ENV ${POSTGRES_PASSWORD}
-  host: "dev-host"
+  host: "localhost"
   port: 5432
   dbname: "templatedb"
   echo: true  # SQLAlchemy echo logs
