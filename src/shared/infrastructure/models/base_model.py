@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
+
 Base = declarative_base()
 
 
@@ -13,7 +14,7 @@ class BaseModel(Base):
         timestamps, and database-specific optimizations.
         """
 
-    _abstract__ = True
+    __abstract__ = True
 
     id = Column(
         UUID(as_uuid=True),

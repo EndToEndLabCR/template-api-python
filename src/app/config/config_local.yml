@@ -3,7 +3,7 @@ app:
   version: "1.0.0"
 
 postgres:
-  username: "templateAdmin"
+  username: "admin"
   password: !ENV ${POSTGRES_PASSWORD}
   host: "localhost"
   port: 5432

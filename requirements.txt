@@ -16,3 +16,4 @@ alembic==1.15.1
 pytest==7.4.2
 pyaml_env~=1.2.2
 asyncpg==0.30.0
+greenlet==3.3.0
