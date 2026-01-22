@@ -14,7 +14,7 @@ class BaseModel(Base):
         timestamps, and database-specific optimizations.
         """
 
-    _abstract__ = True
+    __abstract__ = True
 
     id = Column(
         UUID(as_uuid=True),
