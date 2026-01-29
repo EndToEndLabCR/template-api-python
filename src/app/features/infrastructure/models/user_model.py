@@ -10,8 +10,8 @@ class UserModel(BaseModel):
 
     __tablename__ = 'users'
 
-
     # Additional fields specific to the UserModel can be defined here
     email = Column(String(255), unique=True, nullable=False, index=True)
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
+    country_code = Column(String(10), nullable=True)
