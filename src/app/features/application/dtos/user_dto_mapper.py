@@ -13,8 +13,8 @@ def map_entity_to_dto_user(user_entity:  Union[BaseModel, UserEntity]) -> UserRe
 
     full_name = f"{user_entity.first_name} {user_entity.last_name}"
     return UserResponse(
-        id=str(user_entity.id.value),
+        id=str(user_entity.id),
         fullname=full_name,
-        email=str(user_entity.email.value),
+        email=str(user_entity.email),
 
     )
