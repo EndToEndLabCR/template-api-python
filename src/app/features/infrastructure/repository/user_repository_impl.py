@@ -11,6 +11,7 @@ from src.shared.domain.repositories.base_repository import ID, T
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.shared.domain.value_objects.entity_id import EntityId
 from src.shared.utils.log_util import log
 
 
@@ -25,8 +26,16 @@ class UserRepositoryImpl(UserRepository):
         """
         self.db_session = db_session
 
-    async def find_by_id(self, entity_id: ID) -> Optional[UserEntity]:
-        user_model: Optional[UserModel] = await self.db_session.get(UserModel, entity_id)
+    async def find_by_id(self, entity_id: EntityId) -> Optional[UserEntity]:
+
+        log.info(f"start get user by id: {entity_id.value}")
+        user_model: Optional[UserModel] = await self.db_session.get(UserModel, entity_id.value)
+
+        if user_model is None:
+            log.info(f"user by id {entity_id.value} not found")
+            return None
+
+        log.info(f"completed get user by id {entity_id.value}")
 
         return map_model_to_entity(user_model)
 

@@ -20,8 +20,8 @@ class GetUserByIdUseCase:
             existing_user = await self.user_repository.find_by_id(user_obj_id)
 
             if not existing_user:
-                log.warning(f"User not found with ID: {existing_user.id}")
-                raise UserDoesNotExistException(user_obj_id)
+                log.warning(f"User not found with ID: {user_id}")
+                raise UserDoesNotExistException(user_id)
 
             response_dto = map_entity_to_dto_user(existing_user)
 
@@ -30,9 +30,9 @@ class GetUserByIdUseCase:
         except ValueError as e:
             log.error(f"Invalid UUID format for user ID {user_id}: {e}")
             raise ValueError(f"Invalid user ID format: {user_id}")
-        except UserDoesNotExistException:
+        except UserDoesNotExistException as e:
             log.error(f"User does not exist with ID: {user_id}")
-            raise
+            raise e
         except Exception as e:
             log.error(f"Unexpected error during get user by ID for {user_id}: {str(e)}")
             raise

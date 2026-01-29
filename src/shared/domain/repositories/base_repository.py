@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, List, Optional
 
+from src.shared.domain.value_objects.entity_id import EntityId
+
 T = TypeVar('T')
 ID = TypeVar('ID')
 
@@ -24,7 +26,7 @@ class BaseRepository(Generic[T, ID], ABC):
         pass
 
     @abstractmethod
-    async def find_by_id(self, entity_id: ID) -> Optional[T]:
+    async def find_by_id(self, entity_id: EntityId) -> Optional[T]:
         """
         Find an entity by its unique identifier.
 
