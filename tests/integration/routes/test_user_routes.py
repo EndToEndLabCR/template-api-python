@@ -13,6 +13,7 @@ from src.app.app import fastApiApp
 from src.app.features.application.services.user_service import UserService
 from src.app.features.application.dtos.user_dto import UserResponse
 from src.app.features.application.exceptions.user_exception import UserDoesNotExistException
+from src.app.features.presentation.web.dependencies import get_user_service
 
 
 class TestUserRoutes:
@@ -47,9 +48,7 @@ class TestUserRoutes:
             return mock_service
 
         # Apply the mock at the dependency level
-        fastApiApp.dependency_overrides[
-            __import__('src.app.features.presentation.web.dependencies', fromlist=['get_user_service']).get_user_service
-        ] = mock_get_service
+        fastApiApp.dependency_overrides[get_user_service] = mock_get_service
 
         try:
             # Act
@@ -85,9 +84,7 @@ class TestUserRoutes:
         def mock_get_service():
             return mock_service
 
-        fastApiApp.dependency_overrides[
-            __import__('src.app.features.presentation.web.dependencies', fromlist=['get_user_service']).get_user_service
-        ] = mock_get_service
+        fastApiApp.dependency_overrides[get_user_service] = mock_get_service
 
         try:
             # Act
@@ -139,9 +136,7 @@ class TestUserRoutes:
         def mock_get_service():
             return mock_service
 
-        fastApiApp.dependency_overrides[
-            __import__('src.app.features.presentation.web.dependencies', fromlist=['get_user_service']).get_user_service
-        ] = mock_get_service
+        fastApiApp.dependency_overrides[get_user_service] = mock_get_service
 
         try:
             # Act

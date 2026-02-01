@@ -57,7 +57,6 @@ class GetUserByIdUseCase:
 
         except ValueError as e:
             # UUID validation errors are propagated as-is
-            log.error(f"Invalid UUID format for user ID {user_id}: {e}")
             raise
         except UserDoesNotExistException:
             # Re-raise user not found exceptions without additional logging
