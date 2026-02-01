@@ -27,17 +27,32 @@ class UserRepositoryImpl(UserRepository):
         self.db_session = db_session
 
     async def find_by_id(self, entity_id: EntityId) -> Optional[UserEntity]:
+        """
+        Find a user by their unique identifier.
+        
+        Args:
+            entity_id (EntityId): The user's unique identifier.
+            
+        Returns:
+            Optional[UserEntity]: The user entity if found, None otherwise.
+            
+        Raises:
+            Exception: For database-related errors.
+        """
+        try:
+            log.debug(f"Fetching user by id: {entity_id.value}")
+            user_model: Optional[UserModel] = await self.db_session.get(UserModel, entity_id.value)
 
-        log.info(f"start get user by id: {entity_id.value}")
-        user_model: Optional[UserModel] = await self.db_session.get(UserModel, entity_id.value)
+            if user_model is None:
+                log.debug(f"User with id {entity_id.value} not found")
+                return None
 
-        if user_model is None:
-            log.info(f"user by id {entity_id.value} not found")
-            return None
+            log.debug(f"User with id {entity_id.value} retrieved successfully")
 
-        log.info(f"completed get user by id {entity_id.value}")
-
-        return map_model_to_entity(user_model)
+            return map_model_to_entity(user_model)
+        except Exception as e:
+            log.error(f"Database error while fetching user by id {entity_id.value}: {str(e)}")
+            raise
 
     async def find_by_email(self, email: Email) -> Optional[UserEntity]:
         result = await self.db_session.execute(select(UserModel.email == email.value))

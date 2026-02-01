@@ -6,11 +6,19 @@ from src.app.features.application.dtos.user_dto import UserResponse
 from src.app.features.domain.entities.user_entity import UserEntity
 
 
-def map_entity_to_dto_user(user_entity:  Union[BaseModel, UserEntity]) -> UserResponse:
+def map_entity_to_dto_user(user_entity: Union[BaseModel, UserEntity]) -> UserResponse:
     """
-    Convert a User Entity to a User DTO (Data Transfer Object).
+    Convert a User Entity to a User Response DTO.
+    
+    This function transforms a domain entity into a data transfer object
+    suitable for API responses, combining first and last names into fullname.
+    
+    Args:
+        user_entity (Union[BaseModel, UserEntity]): The user entity to convert.
+        
+    Returns:
+        UserResponse: The user data as a response DTO.
     """
-
     full_name = f"{user_entity.first_name} {user_entity.last_name}"
     return UserResponse(
         id=str(user_entity.id),
