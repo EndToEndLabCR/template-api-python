@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.app.config.app_config import AppConfig
 
 from src.app.features.presentation.web.routes.user_routes import router as user_router
-from src.app.features.presentation.web.exception_handlers import register_exception_handlers
 
 ENV = os.getenv("APP_ENV", "local")
 
@@ -32,9 +31,6 @@ fastApiApp.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
-
-# Register exception handlers from presentation layer
-register_exception_handlers(fastApiApp)
 
 @fastApiApp.get("/")
 def read_root():
