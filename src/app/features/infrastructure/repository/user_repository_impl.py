@@ -1,6 +1,7 @@
 from typing import Optional, List
 
 from sqlalchemy import select
+import sqlalchemy.exc
 
 from src.app.features.domain.entities.user_entity import UserEntity
 from src.app.features.domain.repositories.user_repository import UserRepository
@@ -13,6 +14,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.shared.domain.value_objects.entity_id import EntityId
 from src.shared.utils.log_util import log
+
+
+class DatabaseConnectionError(Exception):
+    """Custom exception to indicate database connection errors."""
+    pass
 
 
 class UserRepositoryImpl(UserRepository):
@@ -28,16 +34,25 @@ class UserRepositoryImpl(UserRepository):
 
     async def find_by_id(self, entity_id: EntityId) -> Optional[UserEntity]:
 
-        log.info(f"start get user by id: {entity_id.value}")
-        user_model: Optional[UserModel] = await self.db_session.get(UserModel, entity_id.value)
+        try:
+            log.info(f"start get user by id: {entity_id.value}")
+            user_model: Optional[UserModel] = await self.db_session.get(UserModel, entity_id.value)
 
-        if user_model is None:
-            log.info(f"user by id {entity_id.value} not found")
-            return None
+            if user_model is None:
+                log.info(f"user by id {entity_id.value} not found")
+                return None
 
-        log.info(f"completed get user by id {entity_id.value}")
+            log.info(f"completed get user by id {entity_id.value}")
 
-        return map_model_to_entity(user_model)
+            return map_model_to_entity(user_model)
+
+        except sqlalchemy.exc.OperationalError as db_error:
+            log.error(f"Database connection error while finding user by id: {entity_id.value}. Error: {str(db_error)}")
+            raise DatabaseConnectionError("Failed to connect to the database.") from db_error
+
+        except Exception as e:
+            log.error(f"Error finding user by id: {entity_id.value} Exceptions: {str(e)}")
+            raise
 
     async def find_by_email(self, email: Email) -> Optional[UserEntity]:
         result = await self.db_session.execute(select(UserModel.email == email.value))

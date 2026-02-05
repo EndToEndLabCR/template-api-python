@@ -14,8 +14,7 @@ class GetUserByIdUseCase:
 
     async def execute(self, user_id: str) -> UserResponse:
         try:
-            user_uuid = UUID(user_id)
-            user_obj_id = EntityId(user_uuid)
+            user_obj_id = EntityId.from_string(user_id)
 
             existing_user = await self.user_repository.find_by_id(user_obj_id)
 
@@ -28,11 +27,8 @@ class GetUserByIdUseCase:
             return response_dto
 
         except ValueError as e:
-            log.error(f"Invalid UUID format for user ID {user_id}: {e}")
-            raise ValueError(f"Invalid user ID format: {user_id}")
+            raise
         except UserDoesNotExistException as e:
-            log.error(f"User does not exist with ID: {user_id}")
-            raise e
+            raise
         except Exception as e:
-            log.error(f"Unexpected error during get user by ID for {user_id}: {str(e)}")
             raise
