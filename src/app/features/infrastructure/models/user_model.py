@@ -15,3 +15,4 @@ class UserModel(BaseModel):
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
     country_code = Column(String(10), nullable=True)
+    password_hash = Column(String(255), nullable=True)

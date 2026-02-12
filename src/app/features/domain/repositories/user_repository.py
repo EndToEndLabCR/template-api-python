@@ -35,3 +35,17 @@ class UserRepository(BaseRepository[UserEntity, EntityId]):
             Optional[UserEntity]: The user entity if found, otherwise None.
         """
         pass
+
+    @abstractmethod
+    async def create_user(self, user: UserEntity, password: str) -> UserEntity:
+        """
+        Persist a new user.
+
+        Args:
+            user (UserEntity): The user entity to persist.
+            password (str): Plain password from request (should be hashed in infrastructure).
+
+        Returns:
+            UserEntity: The created user entity.
+        """
+        pass

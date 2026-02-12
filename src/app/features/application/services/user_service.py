@@ -1,3 +1,5 @@
+from src.app.features.application.dtos.user_dto import UserCreateRequest
+from src.app.features.application.use_cases.create_user import CreateUserUseCase
 from src.app.features.application.use_cases.get_user_by_id import GetUserByIdUseCase
 from src.app.features.domain.repositories.user_repository import UserRepository
 
@@ -14,4 +16,6 @@ class UserService:
 
         return await use_case.execute(user_id)
 
-
+    async def create_user(self, payload: UserCreateRequest):
+        use_case = CreateUserUseCase(self.user_repository)
+        return await use_case.execute(payload)

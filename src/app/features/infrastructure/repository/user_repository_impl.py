@@ -1,8 +1,10 @@
 from typing import Optional, List
 
+import bcrypt
 from sqlalchemy import select
 import sqlalchemy.exc
 
+from src.app.features.application.exceptions.user_exception import UserAlreadyExistsException
 from src.app.features.domain.entities.user_entity import UserEntity
 from src.app.features.domain.repositories.user_repository import UserRepository
 from src.app.features.domain.value_objects.email import Email
@@ -83,3 +85,38 @@ class UserRepositoryImpl(UserRepository):
 
     async def delete(self, entity_id: ID) -> bool:
         pass
+
+    async def create_user(self, user: UserEntity, password: str) -> UserEntity:
+        try:
+            result = await self.db_session.execute(
+                select(UserModel).where(UserModel.email == user.email.value)
+            )
+            if result.scalar_one_or_none():
+                raise UserAlreadyExistsException(user.email.value)
+
+            password_hash = bcrypt.hashpw(
+                password.encode("utf-8"),
+                bcrypt.gensalt()
+            ).decode("utf-8")
+
+            user_model = UserModel(
+                id=user.id.value,
+                email=user.email.value,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                password_hash=password_hash,
+            )
+
+            self.db_session.add(user_model)
+            await self.db_session.commit()
+            await self.db_session.refresh(user_model)
+
+            return map_model_to_entity(user_model)
+
+        except sqlalchemy.exc.IntegrityError as e:
+            await self.db_session.rollback()
+            raise UserAlreadyExistsException(user.email.value) from e
+
+        except Exception as e:
+            await self.db_session.rollback()
+            raise
