@@ -57,7 +57,7 @@ class UserRepositoryImpl(UserRepository):
             raise
 
     async def find_by_email(self, email: Email) -> Optional[UserEntity]:
-        result = await self.db_session.execute(select(UserModel.email == email.value))
+        result = await self.db_session.execute(select(UserModel).where(UserModel.email == email.value))
 
         user_model = result.scalar_one_or_none()
 
@@ -87,10 +87,13 @@ class UserRepositoryImpl(UserRepository):
         pass
 
     async def create_user(self, user: UserEntity, password: str) -> UserEntity:
+        log.info(f"[create_user] type(user.id)={type(user.id)} value={user.id}")
+        log.info(f"[create_user] type(user.email)={type(user.email)} value={user.email}")
+
         try:
             result = await self.db_session.execute(
-                select(UserModel).where(UserModel.email == user.email.value)
-            )
+                select(UserModel).where(UserModel.email == user.email.value))
+
             if result.scalar_one_or_none():
                 raise UserAlreadyExistsException(user.email.value)
 
@@ -98,6 +101,8 @@ class UserRepositoryImpl(UserRepository):
                 password.encode("utf-8"),
                 bcrypt.gensalt()
             ).decode("utf-8")
+
+            log.info("[create_user] about to access .value fields")
 
             user_model = UserModel(
                 id=user.id.value,
