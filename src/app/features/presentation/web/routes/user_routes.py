@@ -41,16 +41,13 @@ async def create_user(payload: UserCreateRequest, user_service: UserService = De
     # """
     # Create a new user.
     #
-    # Args:
-    #     payload (UserCreateRequest): User data to create.
-    #
     # Returns:
-    #     UserResponse: The created user's details.
+    #     Returns the created user details including the generated ID.
+    #     Validates email uniqueness and securely hashes the password.
     # """
 
     try:
         user_result = await user_service.create_user(payload)
-
         return user_result
 
     except UserAlreadyExistsException as e:
@@ -60,4 +57,4 @@ async def create_user(payload: UserCreateRequest, user_service: UserService = De
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
