@@ -1,4 +1,5 @@
 from src.app.features.application.use_cases.get_user_by_id import GetUserByIdUseCase
+from src.app.features.application.use_cases.delete_user_by_id import DeleteUserByIdUseCase
 from src.app.features.domain.repositories.user_repository import UserRepository
 
 
@@ -11,6 +12,12 @@ class UserService:
     async def get_user_by_id(self, user_id: str):
 
         use_case = GetUserByIdUseCase(self.user_repository)
+
+        return await use_case.execute(user_id)
+
+    async def delete_user_by_id(self, user_id: str):
+
+        use_case = DeleteUserByIdUseCase(self.user_repository)
 
         return await use_case.execute(user_id)
 

@@ -82,4 +82,22 @@ class UserRepositoryImpl(UserRepository):
         pass
 
     async def delete(self, entity_id: ID) -> bool:
-        pass
+        try:
+            existing_user = await self.db_session.get(UserModel, entity_id.value)
+
+            if not existing_user:
+                log.info(f"User with id {entity_id.value} not found for deletion.")
+                return False
+
+            await self.db_session.delete(existing_user)
+            await self.db_session.commit()
+            log.info(f"User with id {entity_id.value} successfully deleted.")
+            return True
+
+        except sqlalchemy.exc.OperationalError as db_error:
+            log.error(f"Database connection error while finding user by id: {entity_id.value}. Error: {str(db_error)}")
+            raise DatabaseConnectionError("Failed to connect to the database.") from db_error
+
+        except Exception as e:
+            log.error(f"Error finding user by id: {entity_id.value} Exceptions: {str(e)}")
+            raise
