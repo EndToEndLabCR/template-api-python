@@ -10,6 +10,7 @@ def map_model_to_entity(user_model: UserModel):
         email=user_model.email,
         first_name=user_model.first_name,
         last_name=user_model.last_name,
+        password_hash=user_model.password_hash,
         created_at=user_model.created_at,
         updated_at=user_model.updated_at,
     )
