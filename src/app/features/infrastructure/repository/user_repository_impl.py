@@ -71,8 +71,35 @@ class UserRepositoryImpl(UserRepository):
     async def find_by_name(self, record: str) -> Optional[UserEntity]:
         pass
 
-    async def save(self, entity: T) -> T:
-        pass
+    async def save(self, user: UserEntity) -> UserEntity:
+        try:
+            result = await self.db_session.execute(select(UserModel).where(UserModel.email == user.email.value))
+
+            if result.scalar_one_or_none():
+                log.warning(f"[save] User with email {user.email} already exists")
+                raise UserAlreadyExistsException(user.email.value)
+
+            log.info("[create_user] about to access .value fields")
+
+            user_model = UserModel(id=user.id.value, email=user.email.value, first_name=user.first_name, last_name=user.last_name, password_hash=user.password_hash,)
+
+            self.db_session.add(user_model)
+            await self.db_session.commit()
+            await self.db_session.refresh(user_model)
+
+            log.info(f"[save] User persisted successfully. id={user_model.id}")
+            return map_model_to_entity(user_model)
+
+        except sqlalchemy.exc.IntegrityError as e:
+            await self.db_session.rollback()
+
+            log.error(f"[save] IntegrityError while saving user with email {user.email}: {e}")
+            raise UserAlreadyExistsException(user.email.value) from e
+
+        except Exception as e:
+            await self.db_session.rollback()
+            log.error(f"[save] Unexpected error while saving user with email {user.email}: {e}")
+            raise
 
     async def find_all(self, limit: Optional[int] = None, offset: Optional[int] = None) -> List[T]:
         pass
@@ -85,43 +112,3 @@ class UserRepositoryImpl(UserRepository):
 
     async def delete(self, entity_id: ID) -> bool:
         pass
-
-    async def create_user(self, user: UserEntity, password: str) -> UserEntity:
-        log.info(f"[create_user] type(user.id)={type(user.id)} value={user.id}")
-        log.info(f"[create_user] type(user.email)={type(user.email)} value={user.email}")
-
-        try:
-            result = await self.db_session.execute(
-                select(UserModel).where(UserModel.email == user.email.value))
-
-            if result.scalar_one_or_none():
-                raise UserAlreadyExistsException(user.email.value)
-
-            password_hash = bcrypt.hashpw(
-                password.encode("utf-8"),
-                bcrypt.gensalt()
-            ).decode("utf-8")
-
-            log.info("[create_user] about to access .value fields")
-
-            user_model = UserModel(
-                id=user.id.value,
-                email=user.email.value,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                password_hash=password_hash,
-            )
-
-            self.db_session.add(user_model)
-            await self.db_session.commit()
-            await self.db_session.refresh(user_model)
-
-            return map_model_to_entity(user_model)
-
-        except sqlalchemy.exc.IntegrityError as e:
-            await self.db_session.rollback()
-            raise UserAlreadyExistsException(user.email.value) from e
-
-        except Exception as e:
-            await self.db_session.rollback()
-            raise
