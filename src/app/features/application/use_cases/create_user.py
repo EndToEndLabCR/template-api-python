@@ -2,9 +2,8 @@ from src.app.features.application.dtos.user_dto import UserCreateRequest, UserRe
 from src.app.features.application.dtos.user_dto_mapper import map_create_request_to_entity, map_entity_to_dto_user
 from src.app.features.application.exceptions.user_exception import UserAlreadyExistsException
 from src.app.features.domain.repositories.user_repository import UserRepository
-from src.app.features.domain.value_objects.email import Email
 from src.shared.utils.log_util import log
-
+import bcrypt
 
 class CreateUserUseCase:
 
@@ -13,9 +12,9 @@ class CreateUserUseCase:
 
     async def execute(self, payload: UserCreateRequest) -> UserResponse:
         try:
-            new_user_entity = map_create_request_to_entity(payload)
+            password_hash = bcrypt.hashpw(payload.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-            log.info(f"Creating user with email: {new_user_entity.email}")
+            new_user_entity = map_create_request_to_entity(payload, password_hash)
 
             existing_user = await self.user_repository.find_by_email(new_user_entity.email)
 
@@ -23,7 +22,7 @@ class CreateUserUseCase:
                 log.warning(f"Duplicate user creation attempt with email: {new_user_entity.email}")
                 raise UserAlreadyExistsException(str(new_user_entity.email))
 
-            created_user = await self.user_repository.create_user(new_user_entity, payload.password)
+            created_user = await self.user_repository.save(new_user_entity)
 
             response_dto = map_entity_to_dto_user(created_user)
 
