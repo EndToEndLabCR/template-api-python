@@ -21,10 +21,11 @@ def map_entity_to_dto_user(user_entity:  Union[BaseModel, UserEntity]) -> UserRe
 
     )
 
-def map_create_request_to_entity(payload: UserCreateRequest) -> UserEntity:
+def map_create_request_to_entity(payload: UserCreateRequest, password_hash: str) -> UserEntity:
     return UserEntity(
         id=EntityId.from_string(str(uuid4())),
         email=Email(str(payload.email).lower().strip()),
         first_name=payload.first_name.strip(),
         last_name=payload.last_name.strip(),
+        password_hash=password_hash,
     )
