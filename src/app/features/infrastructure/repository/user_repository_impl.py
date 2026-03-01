@@ -1,8 +1,10 @@
 from typing import Optional, List
 
+import bcrypt
 from sqlalchemy import select
 import sqlalchemy.exc
 
+from src.app.features.application.exceptions.user_exception import UserAlreadyExistsException
 from src.app.features.domain.entities.user_entity import UserEntity
 from src.app.features.domain.repositories.user_repository import UserRepository
 from src.app.features.domain.value_objects.email import Email
@@ -55,7 +57,7 @@ class UserRepositoryImpl(UserRepository):
             raise
 
     async def find_by_email(self, email: Email) -> Optional[UserEntity]:
-        result = await self.db_session.execute(select(UserModel.email == email.value))
+        result = await self.db_session.execute(select(UserModel).where(UserModel.email == email.value))
 
         user_model = result.scalar_one_or_none()
 
@@ -69,8 +71,35 @@ class UserRepositoryImpl(UserRepository):
     async def find_by_name(self, record: str) -> Optional[UserEntity]:
         pass
 
-    async def save(self, entity: T) -> T:
-        pass
+    async def save(self, user: UserEntity) -> UserEntity:
+        try:
+            result = await self.db_session.execute(select(UserModel).where(UserModel.email == user.email.value))
+
+            if result.scalar_one_or_none():
+                log.warning(f"[save] User with email {user.email} already exists")
+                raise UserAlreadyExistsException(user.email.value)
+
+            log.info("[create_user] about to access .value fields")
+
+            user_model = UserModel(id=user.id.value, email=user.email.value, first_name=user.first_name, last_name=user.last_name, password_hash=user.password_hash,)
+
+            self.db_session.add(user_model)
+            await self.db_session.commit()
+            await self.db_session.refresh(user_model)
+
+            log.info(f"[save] User persisted successfully. id={user_model.id}")
+            return map_model_to_entity(user_model)
+
+        except sqlalchemy.exc.IntegrityError as e:
+            await self.db_session.rollback()
+
+            log.error(f"[save] IntegrityError while saving user with email {user.email}: {e}")
+            raise UserAlreadyExistsException(user.email.value) from e
+
+        except Exception as e:
+            await self.db_session.rollback()
+            log.error(f"[save] Unexpected error while saving user with email {user.email}: {e}")
+            raise
 
     async def find_all(self, limit: Optional[int] = None, offset: Optional[int] = None) -> List[T]:
         pass
