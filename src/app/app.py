@@ -21,7 +21,8 @@ if ENV not in ("local", "container"):
 
 # --- CORS Origins from config ---
 origins = [
-    "http://localhost"
+    "http://localhost:5173",
+    "http://localhost:*",
 ]
 
 fastApiApp.add_middleware(
@@ -43,5 +44,3 @@ def get_health_check():
 
 # TODO validate best practices for endpoint naming conventions
 fastApiApp.include_router(user_router, prefix="/v1/user", tags=["Users"])
-
-
