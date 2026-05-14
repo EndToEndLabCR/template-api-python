@@ -35,3 +35,16 @@ class UserRepository(BaseRepository[UserEntity, EntityId]):
             Optional[UserEntity]: The user entity if found, otherwise None.
         """
         pass
+
+    @abstractmethod
+    async def find_by_reset_token_hash(self, token_hash: str) -> Optional[UserEntity]:
+        """
+        Find a user by their password reset token hash.
+
+        Args:
+            token_hash (str): The SHA-256 hash of the reset token.
+
+        Returns:
+            Optional[UserEntity]: The user entity if found, otherwise None.
+        """
+        pass
