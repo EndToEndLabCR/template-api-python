@@ -6,6 +6,7 @@ from src.app.config.app_config import AppConfig
 
 from src.app.features.presentation.web.routes.user_routes import router as user_router
 from src.app.features.presentation.web.routes.auth_routes import router as auth_router
+from src.app.features.presentation.web.routes.password_routes import router as password_router
 
 ENV = os.getenv("APP_ENV", "local")
 
@@ -46,3 +47,4 @@ def get_health_check():
 # TODO validate best practices for endpoint naming conventions
 fastApiApp.include_router(user_router, prefix="/v1/user", tags=["Users"])
 fastApiApp.include_router(auth_router, prefix="/api/v1", tags=["Auth"])
+fastApiApp.include_router(password_router, prefix="/api/v1", tags=["Password"])
