@@ -3,7 +3,7 @@ app:
   version: "1.0.0"
 
 security:
-  password_reset_token_expire_minutes: 60
+  password_reset_token_expire_minutes: 1
 
 postgres:
   username: "templateAdmin"

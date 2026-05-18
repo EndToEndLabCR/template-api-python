@@ -14,7 +14,7 @@ class ForgotPasswordUseCase:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
         self.token_expire_minutes = int(
-            AppConfig.instance().get_config("security.password_reset_token_expire_minutes", 60)
+            AppConfig.instance().get_config("security.password_reset_token_expire_minutes", 1)
         )
 
     async def execute(self, email: str) -> ForgotPasswordResponse:
