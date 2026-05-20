@@ -10,6 +10,7 @@ from src.app.features.application.exceptions.password_exception import (
     ExpiredResetTokenException,
     InvalidResetTokenException,
 )
+from src.app.features.application.exceptions.user_exception import UserEmailNotFoundException
 from src.app.features.application.services.password_service import PasswordService
 from src.app.features.presentation.web.dependencies import get_password_service
 
@@ -24,6 +25,9 @@ async def forgot_password(
 ):
     try:
         return await password_service.forgot_password(payload.email)
+
+    except UserEmailNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
