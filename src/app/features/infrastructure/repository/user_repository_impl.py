@@ -71,6 +71,28 @@ class UserRepositoryImpl(UserRepository):
     async def find_by_name(self, record: str) -> Optional[UserEntity]:
         pass
 
+    async def find_by_reset_token_hash(self, token_hash: str) -> Optional[UserEntity]:
+        try:
+            result = await self.db_session.execute(
+                select(UserModel).where(UserModel.password_reset_token_hash == token_hash)
+            )
+            user_model = result.scalar_one_or_none()
+
+            if user_model is None:
+                log.info("User with given reset token hash not found.")
+                return None
+
+            log.info("User found by reset token hash.")
+            return map_model_to_entity(user_model)
+
+        except sqlalchemy.exc.OperationalError as db_error:
+            log.error(f"Database connection error while finding user by reset token. Error: {str(db_error)}")
+            raise DatabaseConnectionError("Failed to connect to the database.") from db_error
+
+        except Exception as e:
+            log.error(f"Error finding user by reset token: {str(e)}")
+            raise
+
     async def save(self, user: UserEntity) -> UserEntity:
         try:
             result = await self.db_session.execute(select(UserModel).where(UserModel.email == user.email.value))
@@ -107,8 +129,35 @@ class UserRepositoryImpl(UserRepository):
     async def exists(self, entity_id: ID) -> bool:
         pass
 
-    async def update(self, entity: T) -> Optional[T]:
-        pass
+    async def update(self, entity: UserEntity) -> Optional[UserEntity]:
+        try:
+            user_model = await self.db_session.get(UserModel, entity.id.value)
+
+            if user_model is None:
+                log.warning(f"User with id {entity.id.value} not found for update.")
+                return None
+
+            user_model.email = entity.email.value
+            user_model.first_name = entity.first_name
+            user_model.last_name = entity.last_name
+            user_model.password_hash = entity.password_hash
+            user_model.password_reset_token_hash = entity.password_reset_token_hash
+            user_model.password_reset_expires_at = entity.password_reset_expires_at
+
+            await self.db_session.commit()
+            await self.db_session.refresh(user_model)
+
+            log.info(f"User with id {entity.id.value} updated successfully.")
+            return map_model_to_entity(user_model)
+
+        except sqlalchemy.exc.OperationalError as db_error:
+            log.error(f"Database connection error while updating user {entity.id.value}. Error: {str(db_error)}")
+            raise DatabaseConnectionError("Failed to connect to the database.") from db_error
+
+        except Exception as e:
+            await self.db_session.rollback()
+            log.error(f"Error updating user {entity.id.value}: {str(e)}")
+            raise
 
     async def delete(self, entity_id: ID) -> bool:
         try:

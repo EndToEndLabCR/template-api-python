@@ -6,6 +6,19 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    password: str
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+    token: str
+
+class ResetPasswordResponse(BaseModel):
+    message: str
 
 class LoginResponse(BaseModel):
     name: str

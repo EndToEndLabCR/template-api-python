@@ -4,6 +4,7 @@ from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.config.app_config import AppConfig
+from src.app.features.application.services.password_service import PasswordService
 from src.app.features.application.services.user_service import UserService
 from src.app.features.infrastructure.repository.user_repository_impl import UserRepositoryImpl
 from src.shared.infrastructure.config.postgres_db_conn import PostgresDbConnection
@@ -32,3 +33,13 @@ async def get_user_service(session: AsyncSession = Depends(get_database_session)
     user_repository = UserRepositoryImpl(session)
 
     return UserService(user_repository)
+
+
+async def get_password_service(session: AsyncSession = Depends(get_database_session)) -> PasswordService:
+    """
+    Dependency to get PasswordService with proper session management.
+    """
+
+    user_repository = UserRepositoryImpl(session)
+
+    return PasswordService(user_repository)
