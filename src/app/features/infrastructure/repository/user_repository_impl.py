@@ -103,7 +103,14 @@ class UserRepositoryImpl(UserRepository):
 
             log.info("[create_user] about to access .value fields")
 
-            user_model = UserModel(id=user.id.value, email=user.email.value, first_name=user.first_name, last_name=user.last_name, password_hash=user.password_hash,)
+            user_model = UserModel(
+                id=user.id.value,
+                email=user.email.value,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                password_hash=user.password_hash,
+                country_code=user.country_code,
+            )
 
             self.db_session.add(user_model)
             await self.db_session.commit()
@@ -140,6 +147,7 @@ class UserRepositoryImpl(UserRepository):
             user_model.email = entity.email.value
             user_model.first_name = entity.first_name
             user_model.last_name = entity.last_name
+            user_model.country_code = entity.country_code
             user_model.password_hash = entity.password_hash
             user_model.password_reset_token_hash = entity.password_reset_token_hash
             user_model.password_reset_expires_at = entity.password_reset_expires_at
