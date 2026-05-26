@@ -162,3 +162,8 @@ cython_debug/
 #.idea/
 /.idea
 .DS_Store
+.vscode/
+
+# opencode
+.opencode/
+AGENTS.md
