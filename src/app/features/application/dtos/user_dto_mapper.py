@@ -1,7 +1,6 @@
 from typing import Union
 
 from pydantic import BaseModel
-from uuid import uuid4
 
 from src.app.features.application.dtos.user_dto import UserCreateRequest, UserResponse
 from src.app.features.domain.entities.user_entity import UserEntity
@@ -18,14 +17,15 @@ def map_entity_to_dto_user(user_entity:  Union[BaseModel, UserEntity]) -> UserRe
         id=str(user_entity.id),
         fullname=full_name,
         email=str(user_entity.email),
-
+        country_code=user_entity.country_code,
     )
 
 def map_create_request_to_entity(payload: UserCreateRequest, password_hash: str) -> UserEntity:
     return UserEntity(
-        id=EntityId.from_string(str(uuid4())),
+        id=EntityId.generate(),
         email=Email(str(payload.email).lower().strip()),
         first_name=payload.first_name.strip(),
         last_name=payload.last_name.strip(),
         password_hash=password_hash,
+        country_code=payload.country_code.strip().upper() if payload.country_code else None,
     )
