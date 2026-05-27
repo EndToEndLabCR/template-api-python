@@ -14,7 +14,6 @@ class UserModel(BaseModel):
     email = Column(String(255), unique=True, nullable=False, index=True)
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
-    country_code = Column(String(10), nullable=True)
     password_hash = Column(String(255), nullable=False)
     password_reset_token_hash = Column(String(255), nullable=True)
     password_reset_expires_at = Column(DateTime, nullable=True)

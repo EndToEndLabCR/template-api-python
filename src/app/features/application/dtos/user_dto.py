@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel, ConfigDict, EmailStr
 from pydantic.alias_generators import to_camel
 
@@ -41,7 +39,6 @@ class UserResponse(BaseModel):
     id: str
     fullname: str
     email: str
-    country_code: Optional[str] = None
 
 
 class UserCreateRequest(BaseModel):
@@ -54,4 +51,3 @@ class UserCreateRequest(BaseModel):
     last_name: str
     email: EmailStr
     password: str
-    country_code: Optional[str] = None

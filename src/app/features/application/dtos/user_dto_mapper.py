@@ -17,7 +17,6 @@ def map_entity_to_dto_user(user_entity:  Union[BaseModel, UserEntity]) -> UserRe
         id=str(user_entity.id),
         fullname=full_name,
         email=str(user_entity.email),
-        country_code=user_entity.country_code,
     )
 
 def map_create_request_to_entity(payload: UserCreateRequest, password_hash: str) -> UserEntity:
@@ -27,5 +26,4 @@ def map_create_request_to_entity(payload: UserCreateRequest, password_hash: str)
         first_name=payload.first_name.strip(),
         last_name=payload.last_name.strip(),
         password_hash=password_hash,
-        country_code=payload.country_code.strip().upper() if payload.country_code else None,
     )
