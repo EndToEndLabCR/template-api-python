@@ -6,19 +6,24 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
+
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
+
 
 class ResetPasswordRequest(BaseModel):
     token: str
     password: str
 
+
 class ForgotPasswordResponse(BaseModel):
     message: str
     token: str
 
+
 class ResetPasswordResponse(BaseModel):
     message: str
+
 
 class LoginResponse(BaseModel):
     name: str
@@ -34,6 +39,7 @@ class UserResponse(BaseModel):
     id: str
     fullname: str
     email: str
+
 
 class UserCreateRequest(BaseModel):
     model_config = ConfigDict(
