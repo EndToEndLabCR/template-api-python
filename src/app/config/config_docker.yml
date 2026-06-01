@@ -4,6 +4,9 @@ app:
 
 security:
   password_reset_token_expire_minutes: 1
+  jwt:
+    secret_key: !ENV ${SECRET_KEY}
+    access_token_expire_minutes: 60
 
 postgres:
   username: "admin"
