@@ -3,7 +3,7 @@ from pydantic.alias_generators import to_camel
 
 
 class LoginRequest(BaseModel):
-    username: str
+    email: EmailStr
     password: str
 
 
@@ -26,6 +26,8 @@ class ResetPasswordResponse(BaseModel):
 
 
 class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
     name: str
 
 

@@ -1,8 +1,12 @@
 from src.app.features.application.dtos.user_dto import UserCreateRequest
+from src.app.features.application.exceptions.auth_exception import InvalidCredentialsException
 from src.app.features.application.use_cases.create_user import CreateUserUseCase
 from src.app.features.application.use_cases.get_user_by_id import GetUserByIdUseCase
 from src.app.features.application.use_cases.delete_user_by_id import DeleteUserByIdUseCase
+from src.app.features.domain.entities.user_entity import UserEntity
 from src.app.features.domain.repositories.user_repository import UserRepository
+from src.app.features.domain.value_objects.email import Email
+from src.app.features.domain.value_objects.password import Password
 
 
 class UserService:
@@ -26,3 +30,13 @@ class UserService:
 
     async def create_user(self, payload: UserCreateRequest):
         return await self.create_user_use_case.execute(payload)
+
+    async def authenticate_user(self, email: str, password: str) -> UserEntity:
+
+        email_vo = Email(email)
+        user = await self.user_repository.find_by_email(email_vo)
+
+        if user is None or not Password.verify(password, user.password_hash):
+            raise InvalidCredentialsException()
+
+        return user
