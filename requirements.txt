@@ -14,6 +14,8 @@ pyjwt==2.10.1
 python-jose[cryptography]==3.4.0
 alembic==1.15.1
 pytest==7.4.2
+httpx
+pytest-asyncio
 pyaml_env~=1.2.2
 asyncpg==0.30.0
 greenlet==3.3.0
