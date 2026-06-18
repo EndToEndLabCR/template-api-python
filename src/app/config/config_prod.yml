@@ -19,3 +19,16 @@ postgres:
   max_over_flow: 10
   pool_timeout: 30
 
+persistence:
+  driver: postgresql
+  postgres:
+    username: !ENV ${POSTGRES_USER:open-projects-hub-admin}
+    password: !ENV ${POSTGRES_PASSWORD}
+    host: !ENV ${POSTGRES_HOST}
+    port: !ENV ${POSTGRES_PORT:5432}
+    dbname: !ENV ${POSTGRES_DB:open-projects-hub-db}
+    echo: false
+    pool_size: 10
+    max_overflow: 10
+    pool_timeout: 30
+    pool_pre_ping: true

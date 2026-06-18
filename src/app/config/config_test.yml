@@ -18,3 +18,10 @@ postgres:
   pool_size: 10
   max_over_flow: 10
   pool_timeout: 30
+
+
+persistence:
+  driver: sqlite
+  sqlite:
+    db_path: test.db
+    echo: false
