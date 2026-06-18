@@ -1,12 +1,15 @@
+import logging
 import os
+from threading import Lock
+from typing import Any, Optional
+
 from dotenv import load_dotenv
 from pyaml_env import parse_config
-from threading import Lock
-from typing import Dict, Any, Optional
 
-from src.shared.utils.log_util import log
-from src.shared.utils.retry_decorator import retry_on_exception
 from src.app.config.paths import Paths
+
+
+log = logging.getLogger(__name__)
 
 APP_ENV = "APP_ENV"
 DEFAULT_ENVIRONMENT = "dev"
@@ -19,7 +22,8 @@ class AppConfig:
     - Loading environment variables from a `.env` file.
     - Parsing YAML configuration files based on the current environment.
     """
-    _instance: Optional['AppConfig'] = None
+
+    _instance: Optional["AppConfig"] = None
     _lock = Lock()
 
     def __init__(self):
@@ -31,13 +35,13 @@ class AppConfig:
             raise RuntimeError("Use AppConfiguration.instance() to get the singleton instance")
 
         self.env: str = DEFAULT_ENVIRONMENT
-        self.config: Dict[str, Any] = {}
+        self.config: dict[str, Any] = {}
         self._initialized = False
         self.load_app_configuration()
         self._initialized = True
 
     @classmethod
-    def instance(cls) -> 'AppConfig':
+    def instance(cls) -> "AppConfig":
         """
         Provides a thread-safe Singleton instance of AppConfiguration.
         """
@@ -57,7 +61,6 @@ class AppConfig:
         self.load_environment_variables()
         self.load_config_yaml_file()
 
-    @retry_on_exception()
     def load_environment_variables(self):
         """
         Loads environment variables from the `.env` file.
@@ -75,7 +78,6 @@ class AppConfig:
             log.error(f"Error loading environment variables. Exception: {e}")
             raise
 
-    @retry_on_exception()
     def load_config_yaml_file(self):
         """
         Loads the YAML configuration file specific to the current environment.
@@ -91,9 +93,50 @@ class AppConfig:
             self.config = parse_config(path=str(full_config_file_path))
             log.info(f"Successfully loaded configuration from: {config_file}")
 
+            # Validate production configuration
+            if self.env == "prod":
+                self._validate_production_config()
+
         except Exception as e:
             log.error(f"Error loading configuration file {config_file}. Exception: {e}")
             raise
+
+    def _validate_production_config(self):
+        """
+        Validates that critical configuration values are set in production environment.
+        Raises RuntimeError if required secrets are missing or invalid.
+        """
+        # Validate JWT secret
+        jwt_secret = self.get_config("jwt.secret_key")
+        if not jwt_secret or jwt_secret.startswith("${") or len(jwt_secret) < 32:
+            raise RuntimeError(
+                "Production configuration error: JWT secret_key must be set "
+                "and at least 32 characters long. Set SECRET_KEY environment variable."
+            )
+
+        # Validate database password
+        # TODO  validate this. is assuming that always will be PostgreSQL.
+        #  If we change the database, this validation will break. We should make it more generic
+        #  or move to shared/persistence module to each database definiton (postgres, mysql, sqlite, etc)
+
+        db_password = self.get_config("persistence.postgres.password")
+        if not db_password or db_password.startswith("${"):
+            raise RuntimeError(
+                "Production configuration error: Database password must be set. "
+                "Set POSTGRES_PASSWORD environment variable."
+            )
+
+        # Validate database host
+        # TODO  validate this. is assuming that always will be PostgreSQL.
+        #  If we change the database, this validation will break. We should make it more generic
+        #  or move to shared/persistence module to each database definiton (postgres, mysql, sqlite, etc)
+        db_host = self.get_config("persistence.postgres.host")
+        if not db_host or db_host.startswith("${"):
+            raise RuntimeError(
+                "Production configuration error: Database host must be set. Set POSTGRES_HOST environment variable."
+            )
+
+        log.info("Production configuration validation passed")
 
     def get_config(self, key: str, default: Any = None) -> Any:
         """
@@ -106,7 +149,7 @@ class AppConfig:
         Returns:
             The configuration value or default
         """
-        keys = key.split('.')
+        keys = key.split(".")
         value = self.config
 
         try:

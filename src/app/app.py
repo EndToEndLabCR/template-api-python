@@ -4,9 +4,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.app.config.app_config import AppConfig
 
-from src.app.features.presentation.web.routes.user_routes import router as user_router
-from src.app.features.presentation.web.routes.auth_routes import router as auth_router
-from src.app.features.presentation.web.routes.password_routes import router as password_router
+from app.features.user.presentation.web.routes.user_routes import router as user_router
+from app.features.user.presentation.web import router as auth_router
+from app.features.user.presentation.web.routes.password_routes import router as password_router
 
 ENV = os.getenv("APP_ENV", "local")
 
@@ -14,12 +14,12 @@ config = AppConfig.instance()
 app_name = config.get_config("app.name")
 app_version = config.get_config("app.version")
 
-fastApiApp = FastAPI(title=app_name, version=app_version)
+fastapi_app = FastAPI(title=app_name, version=app_version)
 
 if ENV not in ("local", "container"):
-    fastApiApp.docs_url = None
-    fastApiApp.redoc_url = None
-    fastApiApp.openapi_url = None
+    fastapi_app.docs_url = None
+    fastapi_app.redoc_url = None
+    fastapi_app.openapi_url = None
 
 # --- CORS Origins from config ---
 origins = [
@@ -27,7 +27,7 @@ origins = [
     "http://localhost:*",
 ]
 
-fastApiApp.add_middleware(
+fastapi_app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
@@ -35,16 +35,16 @@ fastApiApp.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-@fastApiApp.get("/")
+@fastapi_app.get("/")
 def read_root():
     return {"message": "Welcome to the API"}
 
 
-@fastApiApp.get("/health")
+@fastapi_app.get("/health")
 def get_health_check():
     return "Ok"
 
 # TODO validate best practices for endpoint naming conventions
-fastApiApp.include_router(user_router, prefix="/v1/user", tags=["Users"])
-fastApiApp.include_router(auth_router, prefix="/api/v1", tags=["Auth"])
-fastApiApp.include_router(password_router, prefix="/api/v1", tags=["Password"])
+fastapi_app.include_router(user_router, prefix="/v1/user", tags=["Users"])
+fastapi_app.include_router(auth_router, prefix="/api/v1", tags=["Auth"])
+fastapi_app.include_router(password_router, prefix="/api/v1", tags=["Password"])
