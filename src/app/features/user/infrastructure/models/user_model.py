@@ -15,15 +15,14 @@ class UserModel(Base):
 
     # 2. Data columns
     email = Column(String(255), unique=True, nullable=False, index=True)
-    display_name = Column(String(100), nullable=False)
+    first_name = Column(String(50), nullable=False)
+    last_name = Column(String(50), nullable=False)
     role = Column(String(20), nullable=False, default="viewer")
     password_hash = Column(String(255), nullable=False)
-
-    # 3. Password reset columns (persistence-level, not on entity)
     password_reset_token_hash = Column(String(255), nullable=True)
     password_reset_expires_at = Column(DateTime(timezone=True), nullable=True)
 
-    # 4. Audit columns
+    # 3. Audit columns
     created_at = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

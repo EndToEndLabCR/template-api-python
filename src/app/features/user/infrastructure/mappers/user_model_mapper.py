@@ -15,9 +15,12 @@ class UserModelMapper:
         return UserEntity(
             id=EntityId(model.id),
             email=Email(model.email),
-            display_name=model.display_name,
+            first_name=model.first_name,
+            last_name=model.last_name,
             role=UserRole(model.role),
             password_hash=model.password_hash,
+            password_reset_token_hash=model.password_reset_token_hash,
+            password_reset_expires_at=model.password_reset_expires_at,
             created_at=model.created_at,
             updated_at=model.updated_at,
         )
@@ -27,7 +30,10 @@ class UserModelMapper:
         return UserModel(
             id=entity.id.value,
             email=entity.email.value,
-            display_name=entity.display_name,
+            first_name=entity.first_name,
+            last_name=entity.last_name,
             role=entity.role.value,
             password_hash=entity.password_hash,
+            password_reset_token_hash=entity.password_reset_token_hash,
+            password_reset_expires_at=entity.password_reset_expires_at,
         )
