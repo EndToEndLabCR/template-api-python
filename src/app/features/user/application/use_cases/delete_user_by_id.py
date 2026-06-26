@@ -23,6 +23,8 @@ class DeleteUserByIdUseCase:
 
             return True
 
+        except (ValueError, UserNotFoundError):
+            raise
         except Exception as e:
             log.error(
                 f"Unexpected error during delete user by ID for {user_id}: {str(e)}"

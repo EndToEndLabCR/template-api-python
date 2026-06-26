@@ -15,6 +15,7 @@ def to_user_response(entity: UserEntity) -> UserResponse:
         last_name=entity.last_name,
         display_name=entity.display_name,
         email=str(entity.email),
+        role=entity.role.value,
     )
 
 
@@ -25,4 +26,5 @@ def to_user_entity(request: UserCreateRequest, password_hash: str) -> UserEntity
         first_name=request.first_name.strip(),
         last_name=request.last_name.strip(),
         password_hash=password_hash,
+        role=request.role,
     )

@@ -17,6 +17,9 @@ from src.app.features.user.domain.exceptions.user_exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
+from src.app.features.user.infrastructure.repositories.user_repository_impl import (
+    DatabaseConnectionError,
+)
 from src.app.shared.domain.exceptions.domain_exceptions import (
     ConflictError,
     DomainError,
@@ -242,6 +245,17 @@ async def user_already_exists_error_handler(
     )
 
 
+async def database_connection_error_handler(
+    request: Request, exc: DatabaseConnectionError
+) -> JSONResponse:
+    """Handle DatabaseConnectionError — returns 503."""
+    log.error(f"Database connection error: {exc}")
+    return JSONResponse(
+        status_code=503,
+        content={"detail": str(exc)},
+    )
+
+
 async def generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """
     Handle all unhandled exceptions.
@@ -288,6 +302,7 @@ def register_exception_handlers(app):
     app.add_exception_handler(ConflictError, conflict_error_handler)
     app.add_exception_handler(AccountLockedError, account_locked_error_handler)
     app.add_exception_handler(DomainError, domain_error_handler)
+    app.add_exception_handler(DatabaseConnectionError, database_connection_error_handler)
     app.add_exception_handler(Exception, generic_exception_handler)
     app.add_exception_handler(UserNotFoundError, user_not_found_error_handler)
     app.add_exception_handler(UserAlreadyExistsError, user_already_exists_error_handler)

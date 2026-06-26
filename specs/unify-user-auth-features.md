@@ -450,7 +450,7 @@ from src.app.shared.presentation.health_checks import register_health_endpoints
 from src.app.features.auth.presentation.auth_routes import router as auth_router
 
 # User feature (CRUD — GET/DELETE by ID only; registration moved to auth)
-from src.app.features.user.presentation.web.routes.user_routes import router as user_router
+from app.features.user.presentation.user_routes import router as user_router
 
 # Password feature (forgot/reset)
 from src.app.features.user.presentation.web.routes.password_routes import router as password_router
@@ -498,6 +498,7 @@ fastapi_app.include_router(password_router, prefix="/api/v1", tags=["Password"])
 
 # ── Health ────────────────────────────────────────────────────────
 register_health_endpoints(fastapi_app)
+
 
 @fastapi_app.get("/")
 async def read_root():

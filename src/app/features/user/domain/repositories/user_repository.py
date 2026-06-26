@@ -22,6 +22,14 @@ class UserRepository(ABC):
         """Retrieve a user by the SHA-256 hash of their password-reset token."""
 
     @abstractmethod
+    async def find_all(self, skip: int = 0, limit: int = 20) -> list[UserEntity]:
+        """Retrieve a paginated list of user entities."""
+
+    @abstractmethod
+    async def count(self) -> int:
+        """Return the total number of users."""
+
+    @abstractmethod
     async def save(self, user: UserEntity) -> UserEntity:
         """Persist a new user entity."""
 

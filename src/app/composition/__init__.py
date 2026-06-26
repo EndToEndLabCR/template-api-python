@@ -16,7 +16,10 @@ from src.app.composition.features.auth import (
     get_reset_password_use_case,
 )
 from src.app.composition.features.users import (
+    get_create_user_use_case,
     get_delete_user_use_case,
+    get_list_users_use_case,
+    get_update_user_use_case,
     get_user_by_id_use_case,
 )
 from src.app.composition.infrastructure import (
@@ -36,6 +39,9 @@ __all__ = [
     "get_forgot_password_use_case",
     "get_reset_password_use_case",
     # User
+    "get_create_user_use_case",
     "get_user_by_id_use_case",
+    "get_update_user_use_case",
+    "get_list_users_use_case",
     "get_delete_user_use_case",
 ]
