@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from pydantic.alias_generators import to_camel
 
 
@@ -8,6 +8,8 @@ class UserResponse(BaseModel):
     )
 
     id: str
+    first_name: str
+    last_name: str
     display_name: str
     email: str
 
@@ -15,6 +17,7 @@ class UserResponse(BaseModel):
 class UserCreateRequest(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
-    display_name: str
-    email: EmailStr
-    password: str
+    first_name: str = Field(min_length=1, max_length=50)
+    last_name: str = Field(min_length=1, max_length=50)
+    email: EmailStr = Field(max_length=255)
+    password: str = Field(min_length=8)
