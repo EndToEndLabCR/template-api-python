@@ -1,5 +1,5 @@
-from src.app.features.user.application.exceptions.user_exception import (
-    UserDoesNotExistException,
+from src.app.features.user.domain.exceptions.user_exceptions import (
+    UserNotFoundError,
 )
 from src.app.features.user.domain.repositories.user_repository import UserRepository
 from src.app.shared.domain.value_objects.entity_id import EntityId
@@ -19,7 +19,7 @@ class DeleteUserByIdUseCase:
 
             if not deleting_user:
                 log.warning(f"User not found for deletion with ID: {user_id}")
-                raise UserDoesNotExistException(user_id)
+                raise UserNotFoundError(user_id)
 
             return True
 

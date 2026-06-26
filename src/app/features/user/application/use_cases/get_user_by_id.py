@@ -2,8 +2,8 @@ from src.app.features.user.application.mappers.user_dto_mapper import (
     to_user_response,
     UserResponse,
 )
-from src.app.features.user.application.exceptions.user_exception import (
-    UserDoesNotExistException,
+from src.app.features.user.domain.exceptions.user_exceptions import (
+    UserNotFoundError,
 )
 from src.app.features.user.domain.repositories.user_repository import UserRepository
 from src.app.shared.domain.value_objects.entity_id import EntityId
@@ -22,7 +22,7 @@ class GetUserByIdUseCase:
 
             if not existing_user:
                 log.warning(f"User not found with ID: {user_id}")
-                raise UserDoesNotExistException(user_id)
+                raise UserNotFoundError(user_id)
 
             response_dto = to_user_response(existing_user)
 
@@ -30,7 +30,7 @@ class GetUserByIdUseCase:
 
         except ValueError:
             raise
-        except UserDoesNotExistException:
+        except UserNotFoundError:
             raise
         except Exception:
             raise

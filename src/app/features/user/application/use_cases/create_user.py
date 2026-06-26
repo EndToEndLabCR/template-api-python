@@ -6,8 +6,8 @@ from src.app.features.user.application.mappers.user_dto_mapper import (
     to_user_entity,
     to_user_response,
 )
-from src.app.features.user.application.exceptions.user_exception import (
-    UserAlreadyExistsException,
+from src.app.features.user.domain.exceptions.user_exceptions import (
+    UserAlreadyExistsError,
 )
 from src.app.features.user.domain.repositories.user_repository import UserRepository
 from src.app.shared.domain.value_objects.password import Password
@@ -34,7 +34,7 @@ class CreateUserUseCase:
                 log.warning(
                     f"Duplicate user creation attempt with email: {new_user_entity.email}"
                 )
-                raise UserAlreadyExistsException(str(new_user_entity.email))
+                raise UserAlreadyExistsError(str(new_user_entity.email))
 
             created_user = await self.user_repository.save(new_user_entity)
 
@@ -43,7 +43,7 @@ class CreateUserUseCase:
             log.info(f"User created successfully: {created_user.id}")
             return response_dto
 
-        except (ValueError, UserAlreadyExistsException):
+        except (ValueError, UserAlreadyExistsError):
             raise
         except Exception as e:
             log.error(f"Unexpected error in CreateUserUseCase: {str(e)}")
