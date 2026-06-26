@@ -6,6 +6,7 @@ class UserDoesNotExistException(Exception):
         self.message = f"User with ID {self.user_id} does not exist."
         super().__init__(self.message)
 
+
 class UserEmailNotFoundException(Exception):
     """Exception raised when no user is found for the given email."""
 

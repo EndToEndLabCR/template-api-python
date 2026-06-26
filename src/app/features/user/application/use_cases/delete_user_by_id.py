@@ -1,11 +1,13 @@
-from app.features.user.application.exceptions.user_exception import UserDoesNotExistException
-from app.shared.domain.value_objects.entity_id import EntityId
-from app.shared.utils.log_util import log
+from src.app.features.user.application.exceptions.user_exception import (
+    UserDoesNotExistException,
+)
+from src.app.features.user.domain.repositories.user_repository import UserRepository
+from src.app.shared.domain.value_objects.entity_id import EntityId
+from src.app.shared.utils.log_util import log
 
 
 class DeleteUserByIdUseCase:
-
-    def __init__(self, user_repository):
+    def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
     async def execute(self, user_id: str) -> bool:
@@ -22,5 +24,7 @@ class DeleteUserByIdUseCase:
             return True
 
         except Exception as e:
-            log.error(f"Unexpected error during delete user by ID for {user_id}: {str(e)}")
+            log.error(
+                f"Unexpected error during delete user by ID for {user_id}: {str(e)}"
+            )
             raise

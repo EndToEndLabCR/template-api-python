@@ -49,5 +49,9 @@ def mask_email(email: str, show_chars: int = 2) -> str:
 
     local_part = match.group(1)
     domain = match.group(2)
-    masked_local = local_part[0] + "***" if len(local_part) <= show_chars else local_part[:show_chars] + "***"
+    masked_local = (
+        local_part[0] + "***"
+        if len(local_part) <= show_chars
+        else local_part[:show_chars] + "***"
+    )
     return f"{masked_local}@{domain}"

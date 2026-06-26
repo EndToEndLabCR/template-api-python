@@ -54,7 +54,7 @@ This project serves as a template for building scalable and maintainable API ser
 ### 💾 Installation
 
 ```sh
-# Clone the repository
+# Clone the repositories
 git clone https://github.com/your-username/template-api-python.git
 cd your-repo
 

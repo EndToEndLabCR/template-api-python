@@ -1,50 +1,47 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Optional
 
-from app.features.user.domain.entities.user_entity import UserEntity
-from app.features.user.domain.value_objects.email import Email
-from src.shared.domain.repositories.base_repository import BaseRepository, ID, T
-from app.shared.domain.value_objects.entity_id import EntityId
+from src.app.features.user.domain.entities.user_entity import UserEntity
+from src.app.shared.domain.value_objects.email import Email
+from src.app.shared.domain.value_objects.entity_id import EntityId
 
 
-class UserRepository(BaseRepository[UserEntity, EntityId]):
-
-
+class UserRepository(ABC):
     @abstractmethod
-    async def find_by_email(self, email: Email) -> Optional[UserEntity]:
-        """
-        Find a user by their email address.
-
-        Args:
-            email (Email): The email address to search for.
-
-        Returns:
-            Optional[UserEntity]: The user entity if found, otherwise None.
-        """
+    async def find_by_id(self, entity_id: EntityId) -> Optional[UserEntity]:
         pass
 
     @abstractmethod
-    async def find_by_name(self, record: str) -> Optional[UserEntity]:
-        """
-        Find a user by their name.
-
-        Args:
-            record (str): The name of the user to search for.
-
-        Returns:
-            Optional[UserEntity]: The user entity if found, otherwise None.
-        """
+    async def find_by_email(self, email: Email) -> Optional[UserEntity]:
         pass
 
     @abstractmethod
     async def find_by_reset_token_hash(self, token_hash: str) -> Optional[UserEntity]:
-        """
-        Find a user by their password reset token hash.
+        pass
 
-        Args:
-            token_hash (str): The SHA-256 hash of the reset token.
+    @abstractmethod
+    async def save(self, user: UserEntity) -> UserEntity:
+        pass
 
-        Returns:
-            Optional[UserEntity]: The user entity if found, otherwise None.
-        """
+    @abstractmethod
+    async def update(self, entity: UserEntity) -> Optional[UserEntity]:
+        pass
+
+    @abstractmethod
+    async def delete(self, entity_id: EntityId) -> bool:
+        pass
+
+    # ── Password reset (operates at persistence level, not entity level) ──
+
+    @abstractmethod
+    async def set_password_reset_token(
+        self, email: Email, token_hash: str, expires_at: datetime
+    ) -> bool:
+        pass
+
+    @abstractmethod
+    async def reset_password(
+        self, token_hash: str, new_password_hash: str
+    ) -> bool:
         pass

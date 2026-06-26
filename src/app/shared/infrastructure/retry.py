@@ -38,7 +38,11 @@ def retry_on_exception(max_tries: int = 3) -> Callable:
             backoff.expo,
             RETRIABLE_EXCEPTIONS,
             max_tries=max_tries,
-            on_backoff=lambda details: log.warning(f"Retrying due to: {details['exception']}"),
-            on_giveup=lambda details: log.error(f"Giving up after {details['tries']} attempts."),
+            on_backoff=lambda details: log.warning(
+                f"Retrying due to: {details['exception']}"
+            ),
+            on_giveup=lambda details: log.error(
+                f"Giving up after {details['tries']} attempts."
+            ),
         ),
     )

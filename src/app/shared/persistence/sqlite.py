@@ -4,7 +4,12 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 from src.app.shared.logging import get_logger
 from src.app.shared.persistence.db_connection import DbConnection

@@ -21,9 +21,17 @@ class BusinessLogger(ContextLogger):
             logger: Standard Python logger
             user_id: User ID performing the operation (from JWT)
         """
-        super().__init__(logger, context={"user_id": user_id, "logger_type": "business"})
+        super().__init__(
+            logger, context={"user_id": user_id, "logger_type": "business"}
+        )
 
-    def event(self, event_type: str, entity_id: str | None = None, message: str | None = None, **data: Any) -> None:
+    def event(
+        self,
+        event_type: str,
+        entity_id: str | None = None,
+        message: str | None = None,
+        **data: Any,
+    ) -> None:
         """
         Log successful business event.
 

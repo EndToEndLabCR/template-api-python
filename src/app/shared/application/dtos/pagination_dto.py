@@ -19,7 +19,11 @@ class PaginatedResponse(BaseModel, Generic[T]):
     Contains pagination metadata and the list of items.
     """
 
-    model_config = ConfigDict(json_schema_extra={"example": {"total": 42, "page": 1, "per_page": 20, "items": []}})
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {"total": 42, "page": 1, "per_page": 20, "items": []}
+        }
+    )
 
     total: int = Field(..., description="Total number of items available", ge=0)
     page: int = Field(..., description="Current page number (1-indexed)", ge=1)

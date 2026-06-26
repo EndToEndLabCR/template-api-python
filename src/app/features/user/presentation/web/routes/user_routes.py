@@ -1,80 +1,46 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, status
-from fastapi.params import Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.features.user.application.dtos.user_dto import UserResponse, UserCreateRequest
-from app.features.user.application.exceptions.user_exception import UserDoesNotExistException, UserAlreadyExistsException
-from app.features.user.application.services.user_service import UserService
-from app.features.user.presentation.web.dependencies import get_user_service
+from src.app.features.user.application.dtos.user_dto import UserResponse
+from src.app.features.user.application.exceptions.user_exception import (
+    UserDoesNotExistException,
+)
+from src.app.features.user.application.use_cases.delete_user_by_id import (
+    DeleteUserByIdUseCase,
+)
+from src.app.features.user.application.use_cases.get_user_by_id import (
+    GetUserByIdUseCase,
+)
+from src.app.features.user.presentation.web.dependencies import (
+    get_delete_user_use_case,
+    get_user_by_id_use_case,
+)
 
 router = APIRouter()
 
 
 @router.get("/{user_id}", response_model=UserResponse)
-async def get_user_by_id(user_id: UUID, user_service: UserService = Depends(get_user_service)) -> UserResponse:
-    # """
-    # Get a user by their ID.
-    #
-    # Args:
-    #     user_id (UUID): The user's unique identifier.
-    #
-    # Returns:
-    #     UserResponse: The user's details.
-    # """
-
+async def get_user_by_id(
+    user_id: UUID,
+    use_case: GetUserByIdUseCase = Depends(get_user_by_id_use_case),
+) -> UserResponse:
     try:
-        user_result = await user_service.get_user_by_id(str(user_id))
-
-        return user_result
-
+        return await use_case.execute(str(user_id))
     except UserDoesNotExistException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user_by_id(user_id: UUID, user_service: UserService = Depends(get_user_service)):
-    # """
-    # Delete a user by their ID.
-    #
-    # Args:
-    #     user_id (UUID): The user's unique identifier.
-    #
-    # Returns:
-    #     None
-    # """
-
+async def delete_user_by_id(
+    user_id: UUID,
+    use_case: DeleteUserByIdUseCase = Depends(get_delete_user_use_case),
+):
     try:
-        await user_service.delete_user_by_id(str(user_id))
-
+        await use_case.execute(str(user_id))
     except UserDoesNotExistException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def create_user(payload: UserCreateRequest, user_service: UserService = Depends(get_user_service)) -> UserResponse:
-    # """
-    # Create a new user.
-    #
-    # Returns:
-    #     Returns the created user details including the generated ID.
-    #     Validates email uniqueness and securely hashes the password.
-    # """
-
-    try:
-        user_result = await user_service.create_user(payload)
-        return user_result
-
-    except UserAlreadyExistsException as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
-    except Exception as e:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")

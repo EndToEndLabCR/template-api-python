@@ -4,6 +4,7 @@ from typing import Tuple, Type
 from app.shared.global_variables import MAX_ERROR_RETRIES
 from app.shared.utils.log_util import log
 
+
 def retry_on_exception(max_tries=MAX_ERROR_RETRIES):
     """
     Reusable decorator for retrying a function with backoff on exceptions.
@@ -18,21 +19,28 @@ def retry_on_exception(max_tries=MAX_ERROR_RETRIES):
         backoff.expo,  # Exponential backoff
         Exception,  # Retry on any exception
         max_tries=max_tries,  # Maximum number of attempts
-        on_backoff=lambda details: log.warning(f"Retrying due to: {details['exception']}"),
-        on_giveup=lambda details: log.error(f"Giving up after {details['tries']} attempts.")
+        on_backoff=lambda details: log.warning(
+            f"Retrying due to: {details['exception']}"
+        ),
+        on_giveup=lambda details: log.error(
+            f"Giving up after {details['tries']} attempts."
+        ),
     )
 
 
-def retry_read_operation(max_tries: int = None, backoff_factor: float = None,
-                         exceptions: Tuple[Type[Exception], ...] = None):
+def retry_read_operation(
+    max_tries: int = None,
+    backoff_factor: float = None,
+    exceptions: Tuple[Type[Exception], ...] = None,
+):
     """
     Decorator for retrying read operations with configurable parameters.
-    
+
     Args:
         max_tries (int): Maximum number of attempts before giving up.
         backoff_factor (float): Backoff factor for exponential backoff.
         exceptions (Tuple[Type[Exception], ...]): Exception types to retry on.
-    
+
     Returns:
         callable: A decorator function wrapping the retry logic for read operations.
     """
@@ -43,6 +51,7 @@ def retry_read_operation(max_tries: int = None, backoff_factor: float = None,
         backoff_factor = 1.5
     if exceptions is None:
         from sqlalchemy.exc import SQLAlchemyError, OperationalError
+
         exceptions = (SQLAlchemyError, OperationalError, TimeoutError)
 
     return backoff.on_exception(
@@ -50,21 +59,28 @@ def retry_read_operation(max_tries: int = None, backoff_factor: float = None,
         exceptions,
         max_tries=max_tries,
         factor=backoff_factor,
-        on_backoff=lambda details: log.warning(f"Read operation retry due to: {details['exception']}"),
-        on_giveup=lambda details: log.error(f"Read operation failed after {details['tries']} attempts.")
+        on_backoff=lambda details: log.warning(
+            f"Read operation retry due to: {details['exception']}"
+        ),
+        on_giveup=lambda details: log.error(
+            f"Read operation failed after {details['tries']} attempts."
+        ),
     )
 
 
-def retry_write_operation(max_tries: int = None, backoff_factor: float = None,
-                          exceptions: Tuple[Type[Exception], ...] = None):
+def retry_write_operation(
+    max_tries: int = None,
+    backoff_factor: float = None,
+    exceptions: Tuple[Type[Exception], ...] = None,
+):
     """
     Decorator for retrying write operations with configurable parameters.
-    
+
     Args:
         max_tries (int): Maximum number of attempts before giving up.
         backoff_factor (float): Backoff factor for exponential backoff.
         exceptions (Tuple[Type[Exception], ...]): Exception types to retry on.
-    
+
     Returns:
         callable: A decorator function wrapping the retry logic for write operations.
     """
@@ -75,6 +91,7 @@ def retry_write_operation(max_tries: int = None, backoff_factor: float = None,
         backoff_factor = 2.0
     if exceptions is None:
         from sqlalchemy.exc import SQLAlchemyError, OperationalError, IntegrityError
+
         exceptions = (SQLAlchemyError, OperationalError, IntegrityError)
 
     return backoff.on_exception(
@@ -82,21 +99,28 @@ def retry_write_operation(max_tries: int = None, backoff_factor: float = None,
         exceptions,
         max_tries=max_tries,
         factor=backoff_factor,
-        on_backoff=lambda details: log.warning(f"Write operation retry due to: {details['exception']}"),
-        on_giveup=lambda details: log.error(f"Write operation failed after {details['tries']} attempts.")
+        on_backoff=lambda details: log.warning(
+            f"Write operation retry due to: {details['exception']}"
+        ),
+        on_giveup=lambda details: log.error(
+            f"Write operation failed after {details['tries']} attempts."
+        ),
     )
 
 
-def retry_critical_operation(max_tries: int = None, backoff_factor: float = None,
-                             exceptions: Tuple[Type[Exception], ...] = None):
+def retry_critical_operation(
+    max_tries: int = None,
+    backoff_factor: float = None,
+    exceptions: Tuple[Type[Exception], ...] = None,
+):
     """
     Decorator for retrying critical operations with configurable parameters.
-    
+
     Args:
         max_tries (int): Maximum number of attempts before giving up.
         backoff_factor (float): Backoff factor for exponential backoff.
         exceptions (Tuple[Type[Exception], ...]): Exception types to retry on.
-    
+
     Returns:
         callable: A decorator function wrapping the retry logic for critical operations.
     """
@@ -113,6 +137,10 @@ def retry_critical_operation(max_tries: int = None, backoff_factor: float = None
         exceptions,
         max_tries=max_tries,
         factor=backoff_factor,
-        on_backoff=lambda details: log.warning(f"Critical operation retry due to: {details['exception']}"),
-        on_giveup=lambda details: log.error(f"Critical operation failed after {details['tries']} attempts.")
+        on_backoff=lambda details: log.warning(
+            f"Critical operation retry due to: {details['exception']}"
+        ),
+        on_giveup=lambda details: log.error(
+            f"Critical operation failed after {details['tries']} attempts."
+        ),
     )

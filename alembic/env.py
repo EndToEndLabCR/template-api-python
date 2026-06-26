@@ -13,7 +13,7 @@ from alembic import context
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.app.config.app_config import AppConfig
-from src.shared.infrastructure.models.base_model import Base
+from src.app.shared.persistence import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -27,7 +27,7 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 # Dynamically load database URL from AppConfig
-postgres_config: dict = AppConfig.instance().get_config("postgres", {})
+postgres_config: dict = AppConfig.instance().get_config("persistence.postgres", {})
 db_host = postgres_config.get("host", "")
 db_port = postgres_config.get("port", 5432)
 db_name = postgres_config.get("dbname", "")
@@ -35,7 +35,9 @@ db_user = postgres_config.get("username", "")
 db_password = postgres_config.get("password", "")
 
 # Create async database URL
-async_db_url = f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+async_db_url = (
+    f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+)
 config.set_main_option("sqlalchemy.url", async_db_url)
 
 
@@ -55,7 +57,7 @@ def run_migrations_offline() -> None:
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
-        dialect_opts={"paramstyle":  "named"},
+        dialect_opts={"paramstyle": "named"},
     )
 
     with context.begin_transaction():
@@ -64,10 +66,7 @@ def run_migrations_offline() -> None:
 
 def do_run_migrations(connection: Connection) -> None:
     """Configure context and run migrations."""
-    context.configure(
-        connection=connection,
-        target_metadata=target_metadata
-    )
+    context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():
         context.run_migrations()
