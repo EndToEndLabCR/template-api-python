@@ -14,6 +14,3 @@ class UserRole(str, Enum):
     @classmethod
     def default(cls) -> "UserRole":
         return cls.VIEWER
-
-    def __str__(self) -> str:
-        return self.value
