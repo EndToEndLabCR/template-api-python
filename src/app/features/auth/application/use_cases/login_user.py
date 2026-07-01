@@ -107,6 +107,16 @@ class LoginUserUseCase:
                 await self.lockout_service.record_failed_attempt(email_lower)
                 raise InvalidCredentialsError()
 
+            # Check if account is active
+            if not user_entity.is_active:
+                log.warning(
+                    "Login attempt on inactive account",
+                    event_type="auth.login.inactive_account",
+                    user_id=str(user_entity.id),
+                    email=mask_email(email_lower),
+                )
+                raise InvalidCredentialsError("Account is inactive")
+
             await self.lockout_service.record_successful_login(email_lower)
 
             token = self.jwt_handler.create_access_token(
@@ -121,7 +131,12 @@ class LoginUserUseCase:
                 role=user_entity.role.value,
             )
 
-            response = to_login_response(user_entity, token, refresh_token)
+            response = to_login_response(
+                user_entity,
+                access_token=token,
+                refresh_token=refresh_token,
+                expires_in=self.jwt_handler.expiration_minutes * 60,
+            )
 
             log.info(
                 "User logged in successfully",

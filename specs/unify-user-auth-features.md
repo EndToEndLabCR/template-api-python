@@ -1,5 +1,7 @@
 # Unify User & Auth Features
 
+> **Status: ✅ Implemented** — All phases complete as of June 2026. This document is retained for historical reference. The live implementation may differ from the original plan in some details.
+
 ## Goal
 
 Make user and auth features fully functional using `shared/`, `config/`, and `composition/` modules.

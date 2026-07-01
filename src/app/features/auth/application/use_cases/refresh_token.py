@@ -117,6 +117,7 @@ class RefreshTokenUseCase:
             return RefreshTokenResponse(
                 access_token=new_access_token,
                 refresh_token=new_refresh_token,
+                expires_in=self.jwt_handler.expiration_minutes * 60,
             )
 
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):

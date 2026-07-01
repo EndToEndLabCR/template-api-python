@@ -1,7 +1,6 @@
-from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import select, update as sql_update
+from sqlalchemy import func, select
 import sqlalchemy.exc
 
 from src.app.features.user.domain.entities.user_entity import UserEntity
@@ -23,6 +22,7 @@ from src.app.shared.utils.log_util import log
 
 class DatabaseConnectionError(Exception):
     """Custom exception to indicate database connection errors."""
+
     pass
 
 
@@ -41,25 +41,42 @@ class UserRepositoryImpl(UserRepository):
                 return None
             log.info(f"completed get user by id {entity_id.value}")
             return UserModelMapper.to_entity(user_model)
+
         except sqlalchemy.exc.OperationalError as db_error:
             log.error(
                 f"Database connection error while finding user by id: {entity_id.value}. Error: {str(db_error)}"
             )
-            raise DatabaseConnectionError("Failed to connect to the database.") from db_error
+            raise DatabaseConnectionError(
+                "Failed to connect to the database."
+            ) from db_error
         except Exception as e:
-            log.error(f"Error finding user by id: {entity_id.value} Exceptions: {str(e)}")
+            log.error(
+                f"Error finding user by id: {entity_id.value} Exceptions: {str(e)}"
+            )
             raise
 
     async def find_by_email(self, email: Email) -> Optional[UserEntity]:
-        result = await self.db_session.execute(
-            select(UserModel).where(UserModel.email == email.value)
-        )
-        user_model = result.scalar_one_or_none()
-        if user_model is None:
-            log.info(f"User with email {email.value} not found.")
-            return None
-        log.info(f"User with email {email.value} found.")
-        return UserModelMapper.to_entity(user_model)
+        try:
+            result = await self.db_session.execute(
+                select(UserModel).where(UserModel.email == email.value)
+            )
+            user_model = result.scalar_one_or_none()
+            if user_model is None:
+                log.info(f"User with email {email.value} not found.")
+                return None
+            log.info(f"User with email {email.value} found.")
+            return UserModelMapper.to_entity(user_model)
+
+        except sqlalchemy.exc.OperationalError as db_error:
+            log.error(
+                f"Database connection error while finding user by email: {email.value}. Error: {str(db_error)}"
+            )
+            raise DatabaseConnectionError(
+                "Failed to connect to the database."
+            ) from db_error
+        except Exception as e:
+            log.error(f"Error finding user by email: {email.value}. Error: {str(e)}")
+            raise
 
     async def find_by_reset_token_hash(self, token_hash: str) -> Optional[UserEntity]:
         try:
@@ -74,13 +91,52 @@ class UserRepositoryImpl(UserRepository):
                 return None
             log.info("User found by reset token hash.")
             return UserModelMapper.to_entity(user_model)
+
         except sqlalchemy.exc.OperationalError as db_error:
             log.error(
                 f"Database connection error while finding user by reset token. Error: {str(db_error)}"
             )
-            raise DatabaseConnectionError("Failed to connect to the database.") from db_error
+            raise DatabaseConnectionError(
+                "Failed to connect to the database."
+            ) from db_error
         except Exception as e:
             log.error(f"Error finding user by reset token: {str(e)}")
+            raise
+
+    async def find_all(self, skip: int = 0, limit: int = 20) -> list[UserEntity]:
+        try:
+            result = await self.db_session.execute(
+                select(UserModel)
+                .offset(skip)
+                .limit(limit)
+                .order_by(UserModel.created_at.desc())
+            )
+            models = result.scalars().all()
+            return [UserModelMapper.to_entity(m) for m in models]
+        except sqlalchemy.exc.OperationalError as db_error:
+            log.error(
+                f"Database connection error while listing users. Error: {str(db_error)}"
+            )
+            raise DatabaseConnectionError(
+                "Failed to connect to the database."
+            ) from db_error
+        except Exception as e:
+            log.error(f"Error listing users: {str(e)}")
+            raise
+
+    async def count(self) -> int:
+        try:
+            result = await self.db_session.execute(select(func.count(UserModel.id)))
+            return result.scalar_one()
+        except sqlalchemy.exc.OperationalError as db_error:
+            log.error(
+                f"Database connection error while counting users. Error: {str(db_error)}"
+            )
+            raise DatabaseConnectionError(
+                "Failed to connect to the database."
+            ) from db_error
+        except Exception as e:
+            log.error(f"Error counting users: {str(e)}")
             raise
 
     async def save(self, user: UserEntity) -> UserEntity:
@@ -102,12 +158,25 @@ class UserRepositoryImpl(UserRepository):
 
         except sqlalchemy.exc.IntegrityError as e:
             await self.db_session.rollback()
-            log.error(f"[save] IntegrityError while saving user with email {user.email}: {e}")
+            log.error(
+                f"[save] IntegrityError while saving user with email {user.email}: {e}"
+            )
             raise UserAlreadyExistsError(user.email.value) from e
+
+        except sqlalchemy.exc.OperationalError as db_error:
+            await self.db_session.rollback()
+            log.error(
+                f"Database connection error while saving user: {user.email}. Error: {str(db_error)}"
+            )
+            raise DatabaseConnectionError(
+                "Failed to connect to the database."
+            ) from db_error
 
         except Exception as e:
             await self.db_session.rollback()
-            log.error(f"[save] Unexpected error while saving user with email {user.email}: {e}")
+            log.error(
+                f"[save] Unexpected error while saving user with email {user.email}: {e}"
+            )
             raise
 
     async def update(self, entity: UserEntity) -> Optional[UserEntity]:
@@ -118,10 +187,15 @@ class UserRepositoryImpl(UserRepository):
                 log.warning(f"User with id {entity.id.value} not found for update.")
                 return None
 
-            user_model.email = entity.email.value
-            user_model.display_name = entity.display_name
-            user_model.role = entity.role.value
-            user_model.password_hash = entity.password_hash
+            mapped = UserModelMapper.to_model(entity)
+            user_model.email = mapped.email
+            user_model.first_name = mapped.first_name
+            user_model.last_name = mapped.last_name
+            user_model.role = mapped.role
+            user_model.is_active = mapped.is_active
+            user_model.password_hash = mapped.password_hash
+            user_model.password_reset_token_hash = mapped.password_reset_token_hash
+            user_model.password_reset_expires_at = mapped.password_reset_expires_at
 
             await self.db_session.commit()
             await self.db_session.refresh(user_model)
@@ -133,7 +207,9 @@ class UserRepositoryImpl(UserRepository):
             log.error(
                 f"Database connection error while updating user {entity.id.value}. Error: {str(db_error)}"
             )
-            raise DatabaseConnectionError("Failed to connect to the database.") from db_error
+            raise DatabaseConnectionError(
+                "Failed to connect to the database."
+            ) from db_error
 
         except Exception as e:
             await self.db_session.rollback()
@@ -154,66 +230,10 @@ class UserRepositoryImpl(UserRepository):
             log.error(
                 f"Database connection error while deleting user: {entity_id.value}. Error: {str(db_error)}"
             )
-            raise DatabaseConnectionError("Failed to connect to the database.") from db_error
+            raise DatabaseConnectionError(
+                "Failed to connect to the database."
+            ) from db_error
         except Exception as e:
+            await self.db_session.rollback()
             log.error(f"Error deleting user: {entity_id.value} Exceptions: {str(e)}")
-            raise
-
-    async def set_password_reset_token(
-        self, email: Email, token_hash: str, expires_at: datetime
-    ) -> bool:
-        try:
-            result = await self.db_session.execute(
-                sql_update(UserModel)
-                .where(UserModel.email == email.value)
-                .values(
-                    password_reset_token_hash=token_hash,
-                    password_reset_expires_at=expires_at,
-                )
-            )
-            await self.db_session.commit()
-            updated = result.rowcount > 0
-            if updated:
-                log.info(f"Password reset token set for email: {email.value}")
-            else:
-                log.warning(f"Password reset token not set — email not found: {email.value}")
-            return updated
-        except sqlalchemy.exc.OperationalError as db_error:
-            log.error(f"DB error setting password reset token: {str(db_error)}")
-            raise DatabaseConnectionError("Failed to connect to the database.") from db_error
-        except Exception as e:
-            await self.db_session.rollback()
-            log.error(f"Error setting password reset token: {str(e)}")
-            raise
-
-    async def reset_password(
-        self, token_hash: str, new_password_hash: str
-    ) -> bool:
-        """Atomically reset password if token exists and is not expired."""
-        try:
-            result = await self.db_session.execute(
-                sql_update(UserModel)
-                .where(
-                    UserModel.password_reset_token_hash == token_hash,
-                    UserModel.password_reset_expires_at > datetime.now(),
-                )
-                .values(
-                    password_hash=new_password_hash,
-                    password_reset_token_hash=None,
-                    password_reset_expires_at=None,
-                )
-            )
-            await self.db_session.commit()
-            updated = result.rowcount > 0
-            if updated:
-                log.info("Password reset successfully via token hash.")
-            else:
-                log.warning("Password reset failed — token hash not found.")
-            return updated
-        except sqlalchemy.exc.OperationalError as db_error:
-            log.error(f"DB error resetting password: {str(db_error)}")
-            raise DatabaseConnectionError("Failed to connect to the database.") from db_error
-        except Exception as e:
-            await self.db_session.rollback()
-            log.error(f"Error resetting password: {str(e)}")
             raise

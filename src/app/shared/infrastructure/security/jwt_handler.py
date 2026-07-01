@@ -1,3 +1,4 @@
+import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -127,6 +128,7 @@ class JWTHandler:
         expires_at = now + timedelta(minutes=self.expiration_minutes)
 
         payload: dict[str, Any] = {
+            "jti": str(uuid.uuid4()),
             "sub": user_id,
             "email": email,
             "role": role,

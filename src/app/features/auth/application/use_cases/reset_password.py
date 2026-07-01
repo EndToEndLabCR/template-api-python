@@ -1,4 +1,5 @@
 import hashlib
+from datetime import datetime
 
 from src.app.features.auth.application.dtos.auth_dto import ResetPasswordResponse
 from src.app.features.auth.domain.exceptions.auth_exceptions import (
@@ -30,13 +31,18 @@ class ResetPasswordUseCase:
                 log.warning("Reset password attempted with invalid token hash.")
                 raise InvalidResetTokenException()
 
-            # Atomically reset password if token is still valid (not expired)
-            success = await self.user_repository.reset_password(
-                token_hash, new_password_hash
-            )
-            if not success:
-                log.warning("Reset password failed — token expired or already consumed.")
+            # Verify token has not expired
+            if (
+                user_entity.password_reset_expires_at is None
+                or datetime.now() > user_entity.password_reset_expires_at
+            ):
+                log.warning("Reset password attempted with expired token.")
                 raise ExpiredResetTokenException()
+
+            # Update password and clear the one-time reset token
+            user_entity.update_details(password_hash=new_password_hash)
+            user_entity.clear_password_reset_token()
+            await self.user_repository.update(user_entity)
 
             log.info(f"Password reset successfully for user: {user_entity.id}")
 

@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, DateTime, String
+from sqlalchemy import Boolean, Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 
@@ -18,6 +18,7 @@ class UserModel(Base):
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
     role = Column(String(20), nullable=False, default="viewer")
+    is_active = Column(Boolean, nullable=False, default=True)
     password_hash = Column(String(255), nullable=False)
     password_reset_token_hash = Column(String(255), nullable=True)
     password_reset_expires_at = Column(DateTime(timezone=True), nullable=True)
@@ -26,7 +27,7 @@ class UserModel(Base):
     created_at = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
-    updated_at = Column(    
+    updated_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),

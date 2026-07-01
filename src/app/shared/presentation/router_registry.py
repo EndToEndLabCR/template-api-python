@@ -7,7 +7,7 @@ from fastapi import FastAPI
 
 from src.app.features.auth.presentation.auth_routes import router as auth_router
 from src.app.features.auth.presentation.password_routes import router as password_router
-from app.features.user.presentation.user_routes import (
+from src.app.features.user.presentation.user_routes import (
     router as user_router,
 )
 

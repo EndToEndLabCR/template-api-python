@@ -11,8 +11,12 @@ class BaseEntity:
         updated_at: datetime | None = None,
     ):
         self._id = id
-        self._created_at = created_at if created_at is not None else datetime.now(tz=UTC)
-        self._updated_at = updated_at if updated_at is not None else datetime.now(tz=UTC)
+        self._created_at = (
+            created_at if created_at is not None else datetime.now(tz=UTC)
+        )
+        self._updated_at = (
+            updated_at if updated_at is not None else datetime.now(tz=UTC)
+        )
 
     @property
     def id(self) -> EntityId:

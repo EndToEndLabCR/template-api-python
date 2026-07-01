@@ -3,6 +3,7 @@ Global exception handlers for FastAPI application.
 
 Provides consistent error response formats across all endpoints
 for validation errors, domain errors, authentication errors, and unexpected exceptions.
+All error responses include an `error_code` field for programmatic handling.
 """
 
 import os
@@ -27,6 +28,7 @@ from src.app.shared.domain.exceptions.domain_exceptions import (
     ValidationError,
 )
 from src.app.shared.logging import get_logger
+from src.app.shared.presentation.error_codes import ErrorCode
 
 
 log = get_logger(__name__)
@@ -66,7 +68,10 @@ async def request_validation_error_handler(
     )
     return JSONResponse(
         status_code=422,
-        content={"detail": message},
+        content={
+            "detail": message,
+            "error_code": ErrorCode.VALIDATION_ERROR,
+        },
     )
 
 
@@ -86,7 +91,7 @@ async def value_error_handler(request: Request, exc: ValueError) -> JSONResponse
     log.warning(f"Value error: {exc!s}")
     return JSONResponse(
         status_code=400,
-        content={"detail": str(exc)},
+        content={"detail": str(exc), "error_code": ErrorCode.VALIDATION_ERROR},
     )
 
 
@@ -106,7 +111,7 @@ async def not_found_error_handler(request: Request, exc: NotFoundError) -> JSONR
     log.warning(f"Resource not found: {exc.message}")
     return JSONResponse(
         status_code=404,
-        content={"detail": exc.message},
+        content={"detail": exc.message, "error_code": ErrorCode.NOT_FOUND},
     )
 
 
@@ -128,7 +133,7 @@ async def validation_error_handler(
     log.warning(f"Validation error: {exc.message}")
     return JSONResponse(
         status_code=400,
-        content={"detail": exc.message},
+        content={"detail": exc.message, "error_code": ErrorCode.VALIDATION_ERROR},
     )
 
 
@@ -148,7 +153,7 @@ async def conflict_error_handler(request: Request, exc: ConflictError) -> JSONRe
     log.warning(f"Conflict error: {exc.message}")
     return JSONResponse(
         status_code=409,
-        content={"detail": exc.message},
+        content={"detail": exc.message, "error_code": ErrorCode.VALIDATION_ERROR},
     )
 
 
@@ -176,7 +181,10 @@ async def account_locked_error_handler(
     )
     return JSONResponse(
         status_code=429,
-        content={"detail": exc.message},
+        content={
+            "detail": exc.message,
+            "error_code": ErrorCode.AUTH_ACCOUNT_LOCKED,
+        },
         headers={"Retry-After": str(exc.remaining_seconds)},
     )
 
@@ -197,7 +205,7 @@ async def domain_error_handler(request: Request, exc: DomainError) -> JSONRespon
     log.error(f"Domain error: {exc.message}")
     return JSONResponse(
         status_code=422,
-        content={"detail": exc.message},
+        content={"detail": exc.message, "error_code": ErrorCode.VALIDATION_ERROR},
     )
 
 
@@ -219,7 +227,7 @@ async def user_not_found_error_handler(
     log.warning(f"User not found: {exc}")
     return JSONResponse(
         status_code=404,
-        content={"detail": str(exc)},
+        content={"detail": str(exc), "error_code": ErrorCode.NOT_FOUND_USER},
     )
 
 
@@ -241,7 +249,7 @@ async def user_already_exists_error_handler(
     log.warning(f"User already exists: {exc}")
     return JSONResponse(
         status_code=409,
-        content={"detail": str(exc)},
+        content={"detail": str(exc), "error_code": ErrorCode.CONFLICT_EMAIL_EXISTS},
     )
 
 
@@ -252,7 +260,7 @@ async def database_connection_error_handler(
     log.error(f"Database connection error: {exc}")
     return JSONResponse(
         status_code=503,
-        content={"detail": str(exc)},
+        content={"detail": str(exc), "error_code": ErrorCode.DATABASE_ERROR},
     )
 
 
@@ -276,12 +284,15 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
     if ENV in ("prod", "production"):
         return JSONResponse(
             status_code=500,
-            content={"detail": "An unexpected error occurred. Please try again later."},
+            content={
+                "detail": "An unexpected error occurred. Please try again later.",
+                "error_code": ErrorCode.INTERNAL_ERROR,
+            },
         )
     # In dev/local, provide more details for debugging
     return JSONResponse(
         status_code=500,
-        content={"detail": str(exc)},
+        content={"detail": str(exc), "error_code": ErrorCode.INTERNAL_ERROR},
     )
 
 
@@ -302,7 +313,9 @@ def register_exception_handlers(app):
     app.add_exception_handler(ConflictError, conflict_error_handler)
     app.add_exception_handler(AccountLockedError, account_locked_error_handler)
     app.add_exception_handler(DomainError, domain_error_handler)
-    app.add_exception_handler(DatabaseConnectionError, database_connection_error_handler)
+    app.add_exception_handler(
+        DatabaseConnectionError, database_connection_error_handler
+    )
     app.add_exception_handler(Exception, generic_exception_handler)
     app.add_exception_handler(UserNotFoundError, user_not_found_error_handler)
     app.add_exception_handler(UserAlreadyExistsError, user_already_exists_error_handler)

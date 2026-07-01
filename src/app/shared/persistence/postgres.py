@@ -68,10 +68,17 @@ class PostgresDbConnection(DbConnection):
             yield session
         except TimeoutError as e:
             log.error("Database connection pool exhausted.")
+            await session.rollback()
             raise Exception("Too many requests. Please try again later.") from e
         except OperationalError as e:
             log.error(f"Database connection error: {e}")
+            await session.rollback()
             raise Exception("Database connection failed.") from e
+        except Exception:
+            await session.rollback()
+            raise
+        else:
+            await session.commit()
         finally:
             await session.close()
 

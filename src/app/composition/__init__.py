@@ -9,6 +9,7 @@ Sub-modules contain the actual implementations:
 """
 
 from src.app.composition.features.auth import (
+    get_change_password_use_case,
     get_forgot_password_use_case,
     get_login_use_case,
     get_refresh_token_use_case,
@@ -33,6 +34,7 @@ __all__ = [
     "get_jwt_handler",
     "get_user_repository",
     # Auth
+    "get_change_password_use_case",
     "get_login_use_case",
     "get_register_use_case",
     "get_refresh_token_use_case",

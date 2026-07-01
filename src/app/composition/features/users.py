@@ -53,4 +53,3 @@ async def get_delete_user_use_case(
     repo: UserRepositoryImpl = Depends(get_user_repository),
 ) -> DeleteUserByIdUseCase:
     return DeleteUserByIdUseCase(repo)
-

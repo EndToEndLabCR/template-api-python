@@ -34,3 +34,4 @@ class UserUpdateRequest(BaseModel):
     last_name: str = Field(min_length=1, max_length=50)
     email: EmailStr = Field(max_length=255)
     role: UserRole
+    is_active: bool | None = None

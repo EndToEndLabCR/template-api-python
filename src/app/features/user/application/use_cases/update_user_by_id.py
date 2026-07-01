@@ -32,6 +32,7 @@ class UpdateUserByIdUseCase:
                 first_name=payload.first_name.strip(),
                 last_name=payload.last_name.strip(),
                 role=payload.role,
+                is_active=payload.is_active,
             )
 
             updated_user = await self.user_repository.update(existing_user)

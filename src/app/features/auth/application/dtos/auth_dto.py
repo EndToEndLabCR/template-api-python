@@ -35,16 +35,27 @@ class RefreshTokenResponse(BaseModel):
 
     access_token: str
     refresh_token: str
+    expires_in: int
 
 
 class ForgotPasswordRequest(BaseModel):
     """Request model for forgot password."""
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+    )
 
     email: EmailStr
 
 
 class ResetPasswordRequest(BaseModel):
     """Request model for reset password."""
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+    )
 
     token: str
     password: str
@@ -54,11 +65,34 @@ class ForgotPasswordResponse(BaseModel):
     """Response model for forgot password."""
 
     message: str
-    token: str
 
 
 class ResetPasswordResponse(BaseModel):
     """Response model for reset password."""
+
+    message: str
+
+
+class ChangePasswordRequest(BaseModel):
+    """Request model for changing password (authenticated user)."""
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+    )
+
+    current_password: str
+    new_password: str
+
+
+class ChangePasswordResponse(BaseModel):
+    """Response model for change password."""
+
+    message: str
+
+
+class LogoutResponse(BaseModel):
+    """Response model for logout."""
 
     message: str
 
@@ -79,7 +113,7 @@ class UserDetail(BaseModel):
 
 class AdminLoginResponse(BaseModel):
     """
-    Response model for admin login.
+    Response model for login / register.
     Matches frontend AdminLoginApiResponse interface.
     """
 
@@ -88,9 +122,9 @@ class AdminLoginResponse(BaseModel):
         populate_by_name=True,
     )
 
-    token: str
     access_token: str
     refresh_token: str
+    expires_in: int
     email: str
     display_name: str
     logged_in_at: str

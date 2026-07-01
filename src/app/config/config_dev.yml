@@ -7,9 +7,10 @@ security:
     secret_key: !ENV ${SECRET_KEY}
     algorithm: HS256
     access_token_expire_minutes: 15
-
-    max_overflow: 10
-    pool_timeout: 30
+  cors_origins:
+    - "http://localhost:5173"
+    - "http://localhost:3000"
+    - "http://localhost:*"
 
 persistence:
   driver: postgresql
@@ -21,6 +22,8 @@ persistence:
     dbname: template-db
     echo: false
     pool_size: 10
+    max_overflow: 10
+    pool_timeout: 30
     pool_pre_ping: true
 
 logging:

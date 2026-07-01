@@ -11,7 +11,9 @@ class ListUsersUseCase:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
-    async def execute(self, skip: int = 0, limit: int = 20) -> PaginatedResponse[UserResponse]:
+    async def execute(
+        self, skip: int = 0, limit: int = 20
+    ) -> PaginatedResponse[UserResponse]:
         try:
             total = await self.user_repository.count()
             page = (skip // limit) + 1 if limit > 0 else 1

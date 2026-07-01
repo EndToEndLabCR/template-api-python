@@ -6,6 +6,9 @@ from fastapi import Depends
 
 from src.app.composition.infrastructure import get_jwt_handler
 from src.app.composition.repositories import get_user_repository
+from src.app.features.auth.application.use_cases.change_password import (
+    ChangePasswordUseCase,
+)
 from src.app.features.auth.application.use_cases.forgot_password import (
     ForgotPasswordUseCase,
 )
@@ -25,6 +28,7 @@ from src.app.features.user.infrastructure.repositories.user_repository_impl impo
 from src.app.shared.infrastructure.security.jwt_handler import JWTHandler
 
 # ── Login / Register / Refresh ────────────────────────────────────
+
 
 async def get_login_use_case(
     repo: UserRepositoryImpl = Depends(get_user_repository),
@@ -46,7 +50,9 @@ async def get_refresh_token_use_case(
 ) -> RefreshTokenUseCase:
     return RefreshTokenUseCase(repo, jwt_handler)
 
+
 # ── Password reset ────────────────────────────────────────────────
+
 
 async def get_forgot_password_use_case(
     repo: UserRepositoryImpl = Depends(get_user_repository),
@@ -58,3 +64,9 @@ async def get_reset_password_use_case(
     repo: UserRepositoryImpl = Depends(get_user_repository),
 ) -> ResetPasswordUseCase:
     return ResetPasswordUseCase(repo)
+
+
+async def get_change_password_use_case(
+    repo: UserRepositoryImpl = Depends(get_user_repository),
+) -> ChangePasswordUseCase:
+    return ChangePasswordUseCase(repo)

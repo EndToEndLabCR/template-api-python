@@ -8,12 +8,15 @@ security:
     secret_key: !ENV ${SECRET_KEY}
     algorithm: HS256
     access_token_expire_minutes: 15
+  cors_origins:
+    - "http://localhost:5173"
+    - "http://localhost:*"
 
 
 persistence:
   driver: postgresql
   postgres:
-    username: template-admin
+    username: admin
     password: !ENV ${POSTGRES_PASSWORD}
     host: postgres
     port: 5432

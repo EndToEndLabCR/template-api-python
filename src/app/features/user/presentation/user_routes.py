@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -8,6 +9,10 @@ from src.app.composition import (
     get_list_users_use_case,
     get_update_user_use_case,
     get_user_by_id_use_case,
+)
+from src.app.shared.presentation.auth_dependencies import (
+    get_current_user,
+    require_admin,
 )
 from src.app.features.user.application.dtos.user_dto import (
     UserCreateRequest,
@@ -42,6 +47,7 @@ router = APIRouter()
 async def create_user(
     payload: UserCreateRequest,
     use_case: CreateUserUseCase = Depends(get_create_user_use_case),
+    current_user: dict[str, Any] = Depends(require_admin),
 ) -> UserResponse:
     try:
         return await use_case.execute(payload)
@@ -56,14 +62,30 @@ async def list_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     use_case: ListUsersUseCase = Depends(get_list_users_use_case),
+    current_user: dict[str, Any] = Depends(get_current_user),
 ) -> PaginatedResponse[UserResponse]:
     return await use_case.execute(skip=skip, limit=limit)
+
+
+@router.get("/me", response_model=UserResponse)
+async def get_current_user_profile(
+    use_case: GetUserByIdUseCase = Depends(get_user_by_id_use_case),
+    current_user: dict[str, Any] = Depends(get_current_user),
+) -> UserResponse:
+    """Return the profile of the currently authenticated user."""
+    try:
+        return await use_case.execute(str(current_user["sub"]))
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user_by_id(
     user_id: UUID,
     use_case: GetUserByIdUseCase = Depends(get_user_by_id_use_case),
+    current_user: dict[str, Any] = Depends(get_current_user),
 ) -> UserResponse:
     try:
         return await use_case.execute(str(user_id))
@@ -78,6 +100,7 @@ async def update_user(
     user_id: UUID,
     payload: UserUpdateRequest,
     use_case: UpdateUserByIdUseCase = Depends(get_update_user_use_case),
+    current_user: dict[str, Any] = Depends(require_admin),
 ) -> UserResponse:
     try:
         return await use_case.execute(str(user_id), payload)
@@ -91,6 +114,7 @@ async def update_user(
 async def delete_user(
     user_id: UUID,
     use_case: DeleteUserByIdUseCase = Depends(get_delete_user_use_case),
+    current_user: dict[str, Any] = Depends(require_admin),
 ):
     try:
         await use_case.execute(str(user_id))

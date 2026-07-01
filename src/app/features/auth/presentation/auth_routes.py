@@ -2,15 +2,22 @@ import jwt
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from src.app.composition import (
+    get_change_password_use_case,
     get_login_use_case,
     get_refresh_token_use_case,
     get_register_use_case,
 )
 from src.app.features.auth.application.dtos.auth_dto import (
     AdminLoginResponse,
+    ChangePasswordRequest,
+    ChangePasswordResponse,
     LoginRequest,
+    LogoutResponse,
     RefreshTokenRequest,
     RefreshTokenResponse,
+)
+from src.app.features.auth.application.use_cases.change_password import (
+    ChangePasswordUseCase,
 )
 from src.app.features.auth.application.use_cases.login_user import LoginUserUseCase
 from src.app.features.auth.application.use_cases.refresh_token import (
@@ -27,6 +34,10 @@ from src.app.features.user.domain.exceptions.user_exceptions import (
     UserAlreadyExistsError,
 )
 from src.app.shared.infrastructure.rate_limit.rate_limiter import limiter
+from src.app.shared.infrastructure.security.token_revocation_service import (
+    get_token_revocation_service,
+)
+from src.app.shared.presentation.auth_dependencies import get_current_user
 
 
 router = APIRouter()
@@ -147,4 +158,69 @@ async def refresh_token(
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e)
+        ) from e
+
+
+@router.post("/logout", response_model=LogoutResponse)
+async def logout(
+    current_user: dict = Depends(get_current_user),
+) -> LogoutResponse:
+    """
+    Logout — revoke current access token.
+
+    The current access token is immediately added to the revocation list.
+    Subsequent requests with this token will receive 401.
+
+    Requires a valid Bearer token in Authorization header.
+
+    Returns:
+        LogoutResponse with success message
+    """
+    jti = current_user.get("jti")
+    if jti:
+        token_revocation = get_token_revocation_service()
+        await token_revocation.revoke_token(jti, ttl_minutes=15)
+    return LogoutResponse(message="Logged out successfully")
+
+
+@router.post("/change-password", response_model=ChangePasswordResponse)
+@limiter.limit("5/minute")
+async def change_password(
+    request: Request,
+    payload: ChangePasswordRequest,
+    current_user: dict = Depends(get_current_user),
+    use_case: ChangePasswordUseCase = Depends(get_change_password_use_case),
+) -> ChangePasswordResponse:
+    """
+    Change password for the currently authenticated user.
+
+    Requires current password verification.
+
+    Rate limited to 5 attempts per minute per IP address.
+
+    Args:
+        request: FastAPI request object (required for rate limiting)
+        payload: ChangePasswordRequest with current_password and new_password
+        current_user: Authenticated user from JWT
+        use_case: Injected ChangePasswordUseCase
+
+    Returns:
+        ChangePasswordResponse with success message
+
+    Raises:
+        401: Current password is incorrect or authentication invalid
+        400: New password fails strength validation
+    """
+    try:
+        return await use_case.execute(
+            user_id=str(current_user["sub"]),
+            payload=payload,
+        )
+    except InvalidCredentialsError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e)
+        ) from e
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         ) from e

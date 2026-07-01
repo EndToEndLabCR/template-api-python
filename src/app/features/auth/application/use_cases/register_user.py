@@ -90,7 +90,12 @@ class RegisterUserUseCase:
                 role=created_user.role.value,
             )
 
-            response = to_login_response(created_user, token, refresh_token)
+            response = to_login_response(
+                created_user,
+                access_token=token,
+                refresh_token=refresh_token,
+                expires_in=self.jwt_handler.expiration_minutes * 60,
+            )
 
             log.info(
                 "User registered successfully",

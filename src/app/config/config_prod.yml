@@ -7,6 +7,7 @@ security:
     secret_key: !ENV ${SECRET_KEY}
     algorithm: HS256
     access_token_expire_minutes: 15
+  cors_origins: []  # Override with frontend production domain via env var or deployment config
 
 
 persistence:
