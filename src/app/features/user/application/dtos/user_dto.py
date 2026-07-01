@@ -1,55 +1,37 @@
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from pydantic.alias_generators import to_camel
 
-
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class ForgotPasswordRequest(BaseModel):
-    email: EmailStr
-
-
-class ResetPasswordRequest(BaseModel):
-    token: str
-    password: str
-
-
-class ForgotPasswordResponse(BaseModel):
-    message: str
-    token: str
-
-
-class ResetPasswordResponse(BaseModel):
-    message: str
-
-
-class LoginResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    name: str
+from src.app.features.user.domain.value_objects.user_role import UserRole
 
 
 class UserResponse(BaseModel):
     model_config = ConfigDict(
-        alias_generator=to_camel,
-        populate_by_name=True,
-        from_attributes=True
+        alias_generator=to_camel, populate_by_name=True, from_attributes=True
     )
 
     id: str
-    fullname: str
+    first_name: str
+    last_name: str
+    display_name: str
     email: str
+    role: str
 
 
 class UserCreateRequest(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel,
-        populate_by_name=True
-    )
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
-    first_name: str
-    last_name: str
-    email: EmailStr
-    password: str
+    first_name: str = Field(min_length=1, max_length=50)
+    last_name: str = Field(min_length=1, max_length=50)
+    email: EmailStr = Field(max_length=255)
+    password: str = Field(min_length=8)
+    role: UserRole = UserRole.VIEWER
+
+
+class UserUpdateRequest(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    first_name: str = Field(min_length=1, max_length=50)
+    last_name: str = Field(min_length=1, max_length=50)
+    email: EmailStr = Field(max_length=255)
+    role: UserRole
+    is_active: bool | None = None

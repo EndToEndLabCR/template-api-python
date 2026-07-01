@@ -13,23 +13,22 @@ Repository-specific standards for making safe, minimal changes in this codebase.
 ### Use Case Design
 
 **Follow Command Pattern with DTOs:**
-- Use case methods should accept DTOs (e.g., `CreateProjectRequest`) rather than many individual parameters
-- Keep context parameters separate (e.g., `created_by: str` from JWT token)
-- Maximum 2-3 parameters per use case method (typically: DTO + context)
+- Use case methods should accept DTOs (e.g., `UserCreateRequest`) rather than many individual parameters
+- Keep context parameters separate (e.g., `user_id: str`)
+- Maximum 2-3 parameters per use case method (typically: DTO + context ID)
 
 **Parameter naming:**
-- Use `request` for input DTOs (matches `XxxRequest` type name)
-- Use explicit ID names: `project_id`, `user_id`, `story_id` (not generic `id`)
-- Use `created_by` for actor context from authentication
+- Use `payload` for input DTOs (matches `XxxRequest` type name)
+- Use explicit ID names: `user_id` (not generic `id`)
 
 **Example:**
 ```python
 # ✅ Good
-async def execute(self, request: CreateProjectRequest, created_by: str) -> ProjectResponse:
+async def execute(self, payload: UserCreateRequest) -> UserResponse:
     pass
 
 # ❌ Bad (too many params)
-async def execute(self, name: str, code: str, client_id: str, desc: str, ...) -> ProjectResponse:
+async def execute(self, email: str, password: str, first_name: str, ...) -> UserResponse:
     pass
 ```
 
@@ -38,29 +37,33 @@ async def execute(self, name: str, code: str, client_id: str, desc: str, ...) ->
 **Pass DTOs directly to use cases:**
 ```python
 # ✅ Good - pass DTO directly
-use_case.execute(request=payload, created_by=user_id)
+use_case.execute(payload)
 
 # ❌ Bad - manual unpacking
 use_case.execute(
-    name=payload.name,
-    code=payload.code,
-    client_id=payload.client_id,
+    email=payload.email,
+    password=payload.password,
+    first_name=payload.first_name,
     # ... many lines
 )
 ```
+
+- Use self-documenting names that match their type or purpose
+- Avoid generic names: `command`, `data`, `tmp`, `val`
+- Match DTO type names: `UserCreateRequest` → `payload`
+- Be explicit with IDs and context variables
 
 ### Variable Naming
 
 - Use self-documenting names that match their type or purpose
 - Avoid generic names: `command`, `data`, `tmp`, `val`
-- Match DTO type names: `CreateProjectRequest` → `request`
+- Match DTO type names: `UserCreateRequest` → `payload`
 - Be explicit with IDs and context variables
 
 ## API Contract Rules
 
-- Keep endpoint versioning under `/v1` as defined by router prefixes in `src/app/shared/presentation/router_registry.py`.
-- Align route updates with docs in `docs/api/README.md` when paths or auth requirements change.
-- DTOs use `camelCase` for JSON (Pydantic `alias_generator=to_camel`) but Python code uses `snake_case`.
+- Keep endpoint versioning under the prefixes defined in `src/app/shared/presentation/router_registry.py` (`/api/v1` for auth, `/api/v1/users` for users).
+- DTOs use `camelCase` for JSON via `model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)`.
 
 ## Data and Migration Constraints
 
@@ -71,9 +74,12 @@ use_case.execute(
 
 **Convention: `id → data → audit`**
 
-Every table must follow this column order:
+Every table must follow this column order. Import `Base` from `src.app.shared.persistence`:
 
 ```python
+from src.app.shared.persistence import Base
+import uuid
+
 class XxxModel(Base):
     __tablename__ = "xxx"
 
@@ -100,15 +106,17 @@ class XxxModel(Base):
 - ✅ `id` always first, `created_at`/`updated_at` always last
 - ✅ Use `Base = declarative_base()` (without abstract columns) as the shared parent
 
-## Testing Strategy for This Repo
+## Testing Strategy
 
-- Test suites are split by scope under `src/tests/` (`unit/`, `application/`, `domain/`, `presentation/`, `infrastructure/`, `integration/`, `e2e/`).
-- Use markers from `pytest.ini` (`unit`, `integration`, `e2e`, `slow`, `auth`) and keep marker semantics intact when adding tests.
-- Keep coverage threshold expectations at `>=80%` in local/CI commands.
+No test suite exists yet. When implementing tests:
+
+- Structure under `src/tests/` (`unit/`, `integration/`)
+- Use `pytest-asyncio` for async test support
+- Mock repository interfaces for unit tests; use real DB for integration tests
 
 ## Deployment Notes
 
-- Docker service exposes API on `:8080` (`compose.yml`) while local `make run` serves on `:8000`; verify the correct base URL in tests/docs.
+- Docker service exposes API on `:8080` (`compose.yml`) while local `uvicorn src.main:app --reload` serves on `:8000`; verify the correct base URL in tests/docs.
 - Container runtime entrypoint is `src.main:app` via Gunicorn (`scripts/start-api.sh`), not direct `uvicorn` module execution.
 
 ## Refactoring Guidelines
@@ -119,8 +127,7 @@ class XxxModel(Base):
 2. **Use existing DTOs** - Most features have `CreateXxxRequest` and `UpdateXxxRequest` DTOs
 3. **Keep context separate** - Authentication/authorization context stays as separate params
 4. **Update routes** - Change route handlers to pass DTOs directly (no unpacking)
-5. **Update tests** - Modify test fixtures to create DTOs instead of passing individual params
-6. **Verify** - Run `make test-unit` to ensure no regressions
+5. **Verify** - Run `ruff check src/ && ruff format src/` to ensure no regressions
 
 ### Repository Pattern Consistency
 
@@ -128,11 +135,51 @@ class XxxModel(Base):
 - Return types should match domain needs (e.g., `Tuple[ProjectEntity, str]` for project + client name)
 - Repository methods use domain entities, not DTOs or models directly
 
-### Mapper Location
+### Mapper Patterns
 
-- Mappers live in feature's `application/mappers/` directory (not `shared/`)
-- Mappers convert between domain entities and application DTOs
-- Keep mappers close to the DTOs they work with
+Two layers of mappers, both in feature-local `mappers/` directories:
+
+**Infrastructure mappers** (`infrastructure/mappers/`): Model ↔ Entity
+
+Standalone `XxxMapper` class with `@staticmethod` methods. Models never carry mapping logic.
+
+```python
+# ✅ Good — standalone mapper class
+class ClientMapper:
+    @staticmethod
+    def to_entity(model: ClientModel) -> ClientEntity: ...
+    @staticmethod
+    def to_model(entity: ClientEntity) -> ClientModel: ...
+
+# ❌ Bad — mapping methods on the model
+class ClientModel(Base):
+    def to_entity(self) -> ClientEntity: ...    # model shouldn't know about domain
+    def from_entity(cls, entity) -> "ClientModel": ...
+```
+
+Repository implementations call `XxxMapper.to_entity(model)` and `XxxMapper.to_model(entity)`.
+
+**Application mappers** (`application/mappers/`): Entity ↔ DTO
+
+Standalone functions. Naming: `to_xxx_response(entity, ...)` (match the DTO name). DTOs never carry mapping logic.
+
+```python
+# ✅ Good — standalone function
+def to_project_response(entity: ProjectEntity, client_name: str, ...) -> ProjectResponse: ...
+
+# ❌ Bad — mapping classmethod on the DTO
+class ProjectResponse(BaseModel):
+    @classmethod
+    def from_entity(cls, entity, ...) -> "ProjectResponse": ...
+```
+
+**Rules:**
+- ❌ Models must not have `to_entity()` / `from_entity()` methods
+- ❌ DTOs must not have `from_entity()` / `to_response()` classmethods
+- ❌ Routes must not construct DTOs inline — delegate to application mappers
+- ❌ Use cases must not construct DTOs inline — delegate to application mappers
+- ✅ Mappers live in the feature they serve (not in `shared/`)
+- ✅ Keep mapper files focused — one mapper class/function per concern
 
 ### Validation Patterns
 
@@ -157,7 +204,7 @@ class ProjectEntity:
 
 **Why:** Wrappers add no value, bloat code, and obscure intent. Call validators directly.
 
-**Reference:** See `src/app/features/projects/domain/validators/project_validators.py` for centralized validation.
+**Reference:** The `user` feature uses domain value objects (`Password`, `Email`) for validation rather than a separate validators module.
 
 ### Dependency Injection Patterns
 
@@ -169,28 +216,24 @@ All application dependencies are centrally managed in `src/app/composition/`:
 # ✅ Good - Import from composition root
 from src.app.composition import (
     get_database_session,
-    get_create_project_use_case,
-    get_project_repository,
+    get_create_user_use_case,
+    get_user_repository,
 )
 
-@router.post("/projects")
-async def create_project(
-    payload: CreateProjectRequest,
-    use_case = Depends(get_create_project_use_case),
+@router.post("/")
+async def create_user(
+    payload: UserCreateRequest,
+    use_case = Depends(get_create_user_use_case),
 ):
-    return await use_case.execute(request=payload, created_by=user_id)
-
-# ❌ Bad - Direct imports from feature dependencies (old pattern, removed)
-from src.app.features.projects.presentation.dependencies import get_create_project_use_case
+    return await use_case.execute(payload)
 ```
 
 **Composition Structure:**
-- `composition/__init__.py` - Public API exports all 38 dependencies
-- `composition/infrastructure.py` - Database session, AI service
-- `composition/repositories.py` - Shared repository factories (User, Story, Client)
-- `composition/features/*.py` - Feature-specific use cases and repositories
-- `composition/core.py` - Cross-cutting services (future)
-- `composition/config.py` - Configuration dependencies (future)
+- `composition/__init__.py` — Public API exports all dependencies
+- `composition/infrastructure.py` — Database session, JWT handler
+- `composition/repositories.py` — Repository factories (User)
+- `composition/features/auth.py` — Auth use case factories (login, register, refresh, password reset)
+- `composition/features/users.py` — User use case factories (CRUD)
 
 **Factory Pattern:**
 - All factories return interface types, not implementations
@@ -221,11 +264,11 @@ from src.app.features.projects.presentation.dependencies import get_create_proje
 
 ```python
 # ✅ Correct - full path to the module file
-from src.app.features.projects.application.use_cases.create_project import CreateProjectUseCase
-from src.app.features.clients.infrastructure.repositories.client_repository_impl import ClientRepositoryImpl
+from src.app.features.user.application.use_cases.create_user import CreateUserUseCase
+from src.app.features.user.infrastructure.repositories.user_repository_impl import UserRepositoryImpl
 
 # ❌ Wrong - no __init__.py means no package-level re-exports
-from src.app.features.projects.application.use_cases import CreateProjectUseCase  # will fail
+from src.app.features.user.application.use_cases import CreateUserUseCase  # will fail
 ```
 
 **Exception:** The `composition/` root and `shared/` root still use `__init__.py` for public API exports.

@@ -2,22 +2,39 @@ app:
   name: "App API"
   version: "1.0.0"
 
+
 security:
-  password_reset_token_expire_minutes: 1
   jwt:
     secret_key: !ENV ${SECRET_KEY}
-    access_token_expire_minutes: 60
-
-postgres:
-  username: "admin"
-  password: !ENV ${POSTGRES_PASSWORD}
-  host: "localhost"
-  port: 5432
-  dbname: "templatedb"
-  echo: true  # SQLAlchemy echo logs
-  pool_size: 10
-  max_over_flow: 10
-  pool_timeout: 30
+    algorithm: HS256
+    access_token_expire_minutes: 15
+  cors_origins:
+    - "http://localhost:5173"
+    - "http://localhost:3000"
+    - "http://localhost:*"
 
 
+persistence:
+  driver: postgresql
+  postgres:
+    username: admin
+    password: !ENV ${POSTGRES_PASSWORD}
+    host: localhost
+    port: 5432
+    dbname: template-db
+    echo: false
+    pool_size: 10
+    max_overflow: 10
+    pool_timeout: 30
+    pool_pre_ping: true
+
+logging:
+  level: INFO
+  format: json
+  outputs:
+  - type: console
+  - type: file
+    path: logs/app.log
+    max_bytes: 52428800
+    backup_count: 5
 

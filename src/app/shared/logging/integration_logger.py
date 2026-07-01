@@ -21,7 +21,9 @@ class IntegrationLogger(ContextLogger):
             logger: Standard Python logger
             service_name: External service name (e.g., "openai", "stripe", "sendgrid")
         """
-        super().__init__(logger, context={"service": service_name, "logger_type": "integration"})
+        super().__init__(
+            logger, context={"service": service_name, "logger_type": "integration"}
+        )
 
     def api_call(
         self,
@@ -65,7 +67,12 @@ class IntegrationLogger(ContextLogger):
         self.info(msg, **extra)
 
     def api_error(
-        self, endpoint: str, error: Exception, status_code: int | None = None, method: str = "POST", **data: Any
+        self,
+        endpoint: str,
+        error: Exception,
+        status_code: int | None = None,
+        method: str = "POST",
+        **data: Any,
     ) -> None:
         """
         Log API call failure.
@@ -111,7 +118,11 @@ class IntegrationLogger(ContextLogger):
             int_log.webhook("payment.succeeded", success=True,
                           payment_id="pay-123", amount=99.99)
         """
-        extra: dict[str, Any] = {"webhook": True, "event_type": event_type, "success": success}
+        extra: dict[str, Any] = {
+            "webhook": True,
+            "event_type": event_type,
+            "success": success,
+        }
 
         if data:
             extra.update(redact_sensitive_fields(data))

@@ -32,7 +32,9 @@ class AppConfig:
         Sets the default environment and loads the configuration.
         """
         if AppConfig._instance is not None:
-            raise RuntimeError("Use AppConfiguration.instance() to get the singleton instance")
+            raise RuntimeError(
+                "Use AppConfiguration.instance() to get the singleton instance"
+            )
 
         self.env: str = DEFAULT_ENVIRONMENT
         self.config: dict[str, Any] = {}
@@ -67,7 +69,9 @@ class AppConfig:
         Sets the application environment using the `APP_ENV` variable.
         """
         try:
-            log.info(f"Loading environment variables from .env file...{Paths.ENV_FILE_PATH}")
+            log.info(
+                f"Loading environment variables from .env file...{Paths.ENV_FILE_PATH}"
+            )
             load_dotenv(Paths.ENV_FILE_PATH)
             env_value = os.environ.get(APP_ENV, DEFAULT_ENVIRONMENT)
             self.env = env_value.lower() if env_value else DEFAULT_ENVIRONMENT
@@ -88,7 +92,9 @@ class AppConfig:
             full_config_file_path = Paths.CONFIG_DIR / config_file
 
             if not full_config_file_path.exists():
-                raise FileNotFoundError(f"Configuration file not found: {full_config_file_path}")
+                raise FileNotFoundError(
+                    f"Configuration file not found: {full_config_file_path}"
+                )
 
             self.config = parse_config(path=str(full_config_file_path))
             log.info(f"Successfully loaded configuration from: {config_file}")
@@ -114,26 +120,22 @@ class AppConfig:
                 "and at least 32 characters long. Set SECRET_KEY environment variable."
             )
 
-        # Validate database password
-        # TODO  validate this. is assuming that always will be PostgreSQL.
-        #  If we change the database, this validation will break. We should make it more generic
-        #  or move to shared/persistence module to each database definiton (postgres, mysql, sqlite, etc)
+        # Validate database credentials for the active persistence driver
+        db_driver = self.get_config("persistence.driver", "postgresql")
+        db_config = self.get_config(f"persistence.{db_driver}", {})
 
-        db_password = self.get_config("persistence.postgres.password")
-        if not db_password or db_password.startswith("${"):
+        db_password = db_config.get("password", "")
+        if not db_password or str(db_password).startswith("${"):
             raise RuntimeError(
-                "Production configuration error: Database password must be set. "
-                "Set POSTGRES_PASSWORD environment variable."
+                f"Production configuration error: {db_driver} password must be set. "
+                f"Set the appropriate environment variable."
             )
 
-        # Validate database host
-        # TODO  validate this. is assuming that always will be PostgreSQL.
-        #  If we change the database, this validation will break. We should make it more generic
-        #  or move to shared/persistence module to each database definiton (postgres, mysql, sqlite, etc)
-        db_host = self.get_config("persistence.postgres.host")
-        if not db_host or db_host.startswith("${"):
+        db_host = db_config.get("host", "")
+        if not db_host or str(db_host).startswith("${"):
             raise RuntimeError(
-                "Production configuration error: Database host must be set. Set POSTGRES_HOST environment variable."
+                f"Production configuration error: {db_driver} host must be set. "
+                f"Set the appropriate environment variable."
             )
 
         log.info("Production configuration validation passed")

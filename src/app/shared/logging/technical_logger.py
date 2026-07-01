@@ -20,9 +20,17 @@ class TechnicalLogger(ContextLogger):
             logger: Standard Python logger
             component: Component name (e.g., "database", "cache", "filesystem")
         """
-        super().__init__(logger, context={"component": component, "logger_type": "technical"})
+        super().__init__(
+            logger, context={"component": component, "logger_type": "technical"}
+        )
 
-    def operation(self, operation: str, success: bool = True, duration_ms: float | None = None, **data: Any) -> None:
+    def operation(
+        self,
+        operation: str,
+        success: bool = True,
+        duration_ms: float | None = None,
+        **data: Any,
+    ) -> None:
         """
         Log technical operation (query, cache access, file read).
 
@@ -64,7 +72,13 @@ class TechnicalLogger(ContextLogger):
             tech_log.connection_error("postgresql", error=e,
                                      host="localhost", port=5432, database="app_db")
         """
-        self.error(f"Failed to connect to {service}", error=error, service=service, error_category="connection", **data)
+        self.error(
+            f"Failed to connect to {service}",
+            error=error,
+            service=service,
+            error_category="connection",
+            **data,
+        )
 
     def timeout(self, operation: str, timeout_ms: float, **data: Any) -> None:
         """
@@ -87,7 +101,9 @@ class TechnicalLogger(ContextLogger):
             **data,
         )
 
-    def slow_operation(self, operation: str, duration_ms: float, threshold_ms: float, **data: Any) -> None:
+    def slow_operation(
+        self, operation: str, duration_ms: float, threshold_ms: float, **data: Any
+    ) -> None:
         """
         Log slow operation warning.
 

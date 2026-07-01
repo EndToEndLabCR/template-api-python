@@ -51,7 +51,10 @@ class ApplicationLogger(ContextLogger):
             app_log.config_loaded("config_prod.yml", settings_count=42, env="production")
         """
         self.info(
-            f"Configuration loaded from {config_source}", event_category="config", config_source=config_source, **data
+            f"Configuration loaded from {config_source}",
+            event_category="config",
+            config_source=config_source,
+            **data,
         )
 
     def migration(self, action: str, success: bool = True, **data: Any) -> None:
@@ -62,7 +65,11 @@ class ApplicationLogger(ContextLogger):
             app_log.migration("upgrade", success=True, target_revision="abc123", duration_ms=1250)
         """
         msg = f"Database migration {action} {'succeeded' if success else 'failed'}"
-        extra: dict[str, Any] = {"event_category": "migration", "migration_action": action, "success": success}
+        extra: dict[str, Any] = {
+            "event_category": "migration",
+            "migration_action": action,
+            "success": success,
+        }
         extra.update(data)
 
         if success:

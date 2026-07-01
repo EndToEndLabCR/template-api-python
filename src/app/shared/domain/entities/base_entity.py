@@ -5,12 +5,30 @@ from src.app.shared.domain.value_objects.entity_id import EntityId
 
 class BaseEntity:
     def __init__(
-        self, id: EntityId | None = None, created_at: datetime | None = None, updated_at: datetime | None = None
+        self,
+        id: EntityId,
+        created_at: datetime | None = None,
+        updated_at: datetime | None = None,
     ):
-        self.id: EntityId = id if id is not None else EntityId.generate()
+        self._id = id
+        self._created_at = (
+            created_at if created_at is not None else datetime.now(tz=UTC)
+        )
+        self._updated_at = (
+            updated_at if updated_at is not None else datetime.now(tz=UTC)
+        )
 
-        self.created_at: datetime = created_at if created_at is not None else datetime.now(tz=UTC)
-        self.updated_at: datetime = updated_at if updated_at is not None else datetime.now(tz=UTC)
+    @property
+    def id(self) -> EntityId:
+        return self._id
+
+    @property
+    def created_at(self) -> datetime:
+        return self._created_at
+
+    @property
+    def updated_at(self) -> datetime:
+        return self._updated_at
 
     def mark_as_updated(self) -> None:
-        self.updated_at = datetime.now(tz=UTC)
+        self._updated_at = datetime.now(tz=UTC)

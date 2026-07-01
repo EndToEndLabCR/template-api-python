@@ -22,6 +22,8 @@ def get_config_value(config: dict, key: str, default=None, expected_type=None):
 
     # Custom validation for port ranges
     if key == "port" and not (1 <= value <= 65535):
-        raise ValueError(f"Configuration key '{key}' must be a valid port number (1-65535), got {value}")
+        raise ValueError(
+            f"Configuration key '{key}' must be a valid port number (1-65535), got {value}"
+        )
 
     return value

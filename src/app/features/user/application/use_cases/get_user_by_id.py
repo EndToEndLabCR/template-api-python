@@ -1,12 +1,16 @@
-from app.features.user.application.dtos.user_dto_mapper import UserResponse, map_entity_to_dto_user
-from app.features.user.application.exceptions.user_exception import UserDoesNotExistException
-from app.features.user.domain.repositories.user_repository import UserRepository
-from app.shared.domain.value_objects.entity_id import EntityId
-from app.shared.utils.log_util import log
+from src.app.features.user.application.mappers.user_dto_mapper import (
+    to_user_response,
+    UserResponse,
+)
+from src.app.features.user.domain.exceptions.user_exceptions import (
+    UserNotFoundError,
+)
+from src.app.features.user.domain.repositories.user_repository import UserRepository
+from src.app.shared.domain.value_objects.entity_id import EntityId
+from src.app.shared.utils.log_util import log
 
 
 class GetUserByIdUseCase:
-
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
@@ -18,15 +22,15 @@ class GetUserByIdUseCase:
 
             if not existing_user:
                 log.warning(f"User not found with ID: {user_id}")
-                raise UserDoesNotExistException(user_id)
+                raise UserNotFoundError(user_id)
 
-            response_dto = map_entity_to_dto_user(existing_user)
+            response_dto = to_user_response(existing_user)
 
             return response_dto
 
-        except ValueError as e:
+        except ValueError:
             raise
-        except UserDoesNotExistException as e:
+        except UserNotFoundError:
             raise
-        except Exception as e:
+        except Exception:
             raise
